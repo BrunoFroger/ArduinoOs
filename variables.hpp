@@ -1,0 +1,84 @@
+//----------------------------------
+//
+//      variables.hpp
+//
+//----------------------------------
+//
+// Copyright B.Froger (2021)
+//
+//----------------------------------
+
+#include <arduino.h>
+//#include <FS.h>
+#include <SD.h>
+
+#ifndef __VARIABLES_HPP
+    #define __VARIABLES_HPP
+
+    #include "task.hpp"
+
+    // define tacsk variables
+    #define NB_TASKS    100
+    #define INIT 8
+    #define FREE 9
+    #define RUN 1
+    #define WAIT 2
+    #define DEAD 3
+
+    #define TASK_RETURN_OK  0
+    #define TASK_RETURN_KO  1
+    #define DEFAULT_PRIORITY    64
+
+    extern char printString[250];
+    
+    extern int standardPriority;
+    extern int currentPriority;
+    extern int newPid;
+    extern int nb_process;      // nb total of process
+    extern int run_process;     // process who wait for running
+    extern int wait_process;    // process waiting an evenement
+    extern int active_process;  // process with lower priority than running
+
+    typedef struct taskStructure *taskStructPtr;
+
+    //typedef struct contextStructure *contextStructurePtr;
+
+    typedef struct variableStructure{
+        char key[10];
+        char value[20];
+    } t_variable;
+
+    typedef struct contextStructure {
+        char fileName[50];
+        File ptrFile;
+        int lineNumber;
+        t_variable listeVariables[10];
+    } t_context;
+
+    typedef struct taskStructure{
+        char name[50];
+        int pid;
+        int ppid;
+        int priority;
+        int currentPriority;
+        int status;
+        t_context contexte;
+        void (*initFct)(taskStructPtr task);
+        int (*execFct)(taskStructPtr task);
+        void (*waitFct)(taskStructPtr task);
+        void (*wakeupFct)(taskStructPtr task);
+
+        bool insideIf=false;
+        bool insideElse=false;
+        t_variable lstVar[10];
+
+    } taskStruct; 
+
+    extern taskStruct taskTbl[];
+
+    // define internals commandes
+    //#define NB_INTERNAL_COMMANDS    5
+    //#define SIZE_INTERNAL_COMMAND   20
+    //extern char internalCommands[NB_INTERNAL_COMMANDS][SIZE_INTERNAL_COMMAND];
+
+#endif

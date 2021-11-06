@@ -1,0 +1,13 @@
+Ce module logiciel permet d'apprehender les concepts d'os avec un de veloppement des fonctionnalites suivantes
+
+- scheduler : permet de sequencer le'execution des taches 
+- monitor : permet de lancer des commandes via l'interface Serial
+-liste des taches disponibles  :
+    - ps : liste des taches 
+    - env : visualistaion des varaibles d'environnement (systeme et user)
+    - set : creation d'une variable d'environnement user
+    - unset : suppression d'une variable d'environnement user
+    - monitor : lancement d'un shell permettant d'eexecuter les commande definies ici
+    - kill : permet de tuer un process avec son pid
+    - nop : tache ne faisant rien sauf occuper le cpu ; permet tester la gestion des priorites et le scheduler
+    - priority : change le niveau priorite pour le lancement de nouvelles taches
