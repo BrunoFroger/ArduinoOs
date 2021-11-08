@@ -20,7 +20,7 @@
     extern int sdcard_exec(taskStructPtr);
     extern void sdcard_wait(taskStructPtr);
     extern void sdcard_wakeup(taskStructPtr);
-    char *sdcard_pwd(void);
+    char *sdcard_pwd(taskStruct *task);
     bool is_sdcard_initialized(void);
 
 #endif

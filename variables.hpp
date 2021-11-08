@@ -30,7 +30,7 @@
     #define DEFAULT_PRIORITY    64
 
     extern char printString[250];
-    
+
     extern int standardPriority;
     extern int currentPriority;
     extern int newPid;
@@ -48,6 +48,14 @@
         char value[20];
     } t_variable;
 
+    typedef struct sdCardParamStruct {
+        bool recursif;
+        File currentDirectory;
+        char currentDirectoryName[50];
+        char currentPathName[50];
+        File sdcardDataFile;
+    } t_SdCardParam;
+
     typedef struct contextStructure {
         char fileName[50];
         File ptrFile;
@@ -62,7 +70,6 @@
         int priority;
         int currentPriority;
         int status;
-        t_context contexte;
         void (*initFct)(taskStructPtr task);
         int (*execFct)(taskStructPtr task);
         void (*waitFct)(taskStructPtr task);
@@ -72,13 +79,11 @@
         bool insideElse=false;
         t_variable lstVar[10];
 
+        t_context context;
+        t_SdCardParam sdCardParam;
+
     } taskStruct; 
 
     extern taskStruct taskTbl[];
-
-    // define internals commandes
-    //#define NB_INTERNAL_COMMANDS    5
-    //#define SIZE_INTERNAL_COMMAND   20
-    //extern char internalCommands[NB_INTERNAL_COMMANDS][SIZE_INTERNAL_COMMAND];
 
 #endif

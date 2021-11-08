@@ -21,16 +21,7 @@
 
 #define SD_CS    14
 
-File currentDirectory;
-char currentDirectoryName[50];
-char currentPathName[100];
-File sdcardDataFile;
-char sdcardValue[50];
 bool sdcard_initialzed=false;
-
-struct {
-    bool recursif;
-} param;
 
 //-----------------------------------
 //
@@ -49,20 +40,20 @@ void sdcard_init(taskStruct *task){
         } else {
             Serial.println("SD Card mounted with success");
         }
-        strcpy(currentDirectoryName,"/");
-        strcpy(currentPathName,"/");
+        strcpy(task->sdCardParam.currentDirectoryName,"/");
+        strcpy(task->sdCardParam.currentPathName,"/");
         sdcard_initialzed=true;
     }
     task->status = RUN;
 }
 
-void printDirectory(File dir, int numTabs);
+void printDirectory(taskStruct *task, File dir, char * parametres, int numTabs);
 //-----------------------------------
 //
 //      printDirectoryRecursive
 //
 //-----------------------------------
-void printDirectoryRecursive(File dir, int numTabs) {
+void printDirectoryRecursive(taskStruct *task, File dir, char * parametres, int numTabs) {
     while (true) {
         File entry =  dir.openNextFile();
         if (! entry) {
@@ -75,7 +66,7 @@ void printDirectoryRecursive(File dir, int numTabs) {
         Serial.print(entry.name());
         if (entry.isDirectory()) {
             Serial.println("/");
-            printDirectory(entry, numTabs + 1);
+            printDirectory(task, entry, parametres, numTabs + 1);
         } else {
             // files have sizes, directories do not
             Serial.print("\t\t");
@@ -90,8 +81,8 @@ void printDirectoryRecursive(File dir, int numTabs) {
 //      reset_parametres
 //
 //-----------------------------------
-void reset_parametres(){
-    param.recursif=false;
+void reset_parametres(taskStruct *task){
+    task->sdCardParam.recursif=false;
 }
 
 //-----------------------------------
@@ -99,12 +90,12 @@ void reset_parametres(){
 //      analyse_parametres
 //
 //-----------------------------------
-void analyse_parametres(char *parametres){
+void analyse_parametres(taskStruct *task, char *parametres){
     if (parametres[0] == '-'){
         for (int i = 1 ; i < strlen(parametres); i++){
             switch (parametres[i]){
                 case 'r':
-                    param.recursif=true;
+                    task->sdCardParam.recursif=true;
                     break;
                 default:
                     sprintf(printString, "parametre <%c> inconnu\n", parametres[i]);Serial.print(printString);
@@ -118,12 +109,12 @@ void analyse_parametres(char *parametres){
 //      printDirectory
 //
 //-----------------------------------
-void printDirectory(char *directoryName, char * parametres, int numTabs) {
+void printDirectory(taskStruct *task, char *directoryName, char * parametres, int numTabs) {
     const char *tmp1;
-    reset_parametres();
+    reset_parametres(task);
     sprintf(printString, "liste des fichiers du repertoire <%s>\n",directoryName);Serial.print(printString);
     sprintf(printString, "avec comme parametres <%s>\n",parametres);Serial.print(printString);
-    analyse_parametres(parametres);
+    analyse_parametres(task, parametres);
     File directory = SD.open(directoryName);
     while (true) {
         File entry =  directory.openNextFile();
@@ -151,8 +142,8 @@ void printDirectory(char *directoryName, char * parametres, int numTabs) {
 //      getPwd
 //
 //-----------------------------------
-char *getPwd(void){
-    return currentPathName;
+char *getPwd(taskStruct *task){
+    return task->sdCardParam.currentPathName;
 }
 
 
@@ -185,11 +176,11 @@ int sdcard_exec(taskStruct *task){
         if (strncmp(parametres, "ls", 2) == 0){
             if (strlen (parametres) > 3){
                 parametres = &parametres[3];
-                sprintf(printString, "sdcard_exec => ls de <%s> avec parametres <%s>\n", currentDirectoryName, parametres); Serial.print(printString);
-                printDirectory(currentPathName,parametres,0);
+                sprintf(printString, "sdcard_exec => ls de <%s> avec parametres <%s>\n", task->sdCardParam.currentDirectoryName, parametres); Serial.print(printString);
+                printDirectory(task, task->sdCardParam.currentPathName,parametres,0);
             } else {
-                sprintf(printString, "sdcard_exec => ls de <%s> sans parametres\n", currentDirectoryName); Serial.print(printString);
-                printDirectory(currentPathName,"",0);
+                sprintf(printString, "sdcard_exec => ls de <%s> sans parametres\n", task->sdCardParam.currentDirectoryName); Serial.print(printString);
+                printDirectory(task, task->sdCardParam.currentPathName,"", 0);
             }
             task->status=DEAD;
         } else if (strncmp(parametres, "cd", 2) == 0){
@@ -200,27 +191,27 @@ int sdcard_exec(taskStruct *task){
                 strcpy(tmp1,parametres);
                 if (parametres[0] != '-'){
                     tools_string_cut(tmp1, ' ', 0);
-                    sprintf(printString, "sdcard_exec => current dir passe de <%s> a <%s>\n", currentDirectoryName, tmp1); Serial.print(printString);
-                    strcpy(currentDirectoryName,tmp1);
-                    if (currentDirectoryName[0] == '/'){
-                        strcpy(currentPathName, currentDirectoryName);
+                    sprintf(printString, "sdcard_exec => current dir passe de <%s> a <%s>\n", task->sdCardParam.currentDirectoryName, tmp1); Serial.print(printString);
+                    strcpy(task->sdCardParam.currentDirectoryName,tmp1);
+                    if (task->sdCardParam.currentDirectoryName[0] == '/'){
+                        strcpy(task->sdCardParam.currentPathName, task->sdCardParam.currentDirectoryName);
                     } else {
-                        if (strlen(currentPathName) > 1){
-                            strcat(currentPathName, "/");
+                        if (strlen(task->sdCardParam.currentPathName) > 1){
+                            strcat(task->sdCardParam.currentPathName, "/");
                         }
-                        strcat(currentPathName, currentDirectoryName);
+                        strcat(task->sdCardParam.currentPathName, task->sdCardParam.currentDirectoryName);
                     }
                 }
             }
             task->status=DEAD;
         } else if(strncmp(parametres, "pwd", 3) == 0){
             char tmp1[100];
-            sprintf(printString, "sdcard_exec => pwd = <%s> \n", getPwd()); Serial.print(printString);
+            sprintf(printString, "sdcard_exec => pwd = <%s> \n", getPwd(task)); Serial.print(printString);
             task->status=DEAD;
         } else {
             // test si un script existe avec ce nom
             //sprintf(printString, "sdcard_exec => lancement d'un script externe = <%s> \n", parametres); Serial.print(printString);
-            File directory = SD.open(currentDirectoryName);
+            File directory = SD.open(task->sdCardParam.currentDirectoryName);
             bool fileFound=false;
             while (true) {
                 File entry =  directory.openNextFile();
@@ -236,11 +227,10 @@ int sdcard_exec(taskStruct *task){
                     sprintf(printString, "sdcard_exec => execution du script <%s> \n", parametres); Serial.print(printString);
                     fileFound=true;
                     // executer interpreteur sur e fichier
-                    t_context newContext;
-                    strcmp(newContext.fileName,parametres);
-                    newContext.ptrFile=entry;
-                    newContext.lineNumber=0;
-                    interpreteur(task, &newContext);
+                    strcmp(task->context.fileName,parametres);
+                    task->context.ptrFile=entry;
+                    task->context.lineNumber=0;
+                    interpreteur(task, &task->context);
                 }
             }
             if (!fileFound){
@@ -279,8 +269,8 @@ void sdcard_wakeup(taskStruct *task){
 //      sdcard_pwd
 //
 //-----------------------------------
-char *sdcard_pwd(void){
-    return currentDirectoryName;
+char *sdcard_pwd(taskStruct *task){
+    return getPwd(task);
 }
 
 //-----------------------------------

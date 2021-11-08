@@ -235,9 +235,9 @@ int afficheur_exec(taskStruct *task){
                 affiche_valeur_int(3,0,old_currentPriority,currentPriority);
                 old_currentPriority=currentPriority;
             }
-            if (strcmp(old_currentDirectory,sdcard_pwd()) != 0){
-                affiche_valeur_chaine(4,0,old_currentDirectory,sdcard_pwd());
-                strcpy(old_currentDirectory, sdcard_pwd());
+            if (strcmp(old_currentDirectory,sdcard_pwd(task)) != 0){
+                affiche_valeur_chaine(4,0,old_currentDirectory,sdcard_pwd(task));
+                strcpy(old_currentDirectory, sdcard_pwd(task));
             }
             break;
         case AFFICHEUR_PS:
