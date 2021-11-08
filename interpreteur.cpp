@@ -133,7 +133,6 @@ void evalueInstruction(taskStruct *task, char *instruction){
 //      interpreteLigne
 //
 //-----------------------------------
-//int interpreteLigne(char *ligne, int numLigne){
 int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
     sprintf(printString, "---------------------------\n"); Serial.print(printString);
     //sprintf(printString, "interpreteur %s => interpreteLigne => on interprete la ligne numero %d => <%s>\n", task->name, ligne); Serial.print(printString);
