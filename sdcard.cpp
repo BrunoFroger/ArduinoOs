@@ -230,7 +230,7 @@ int sdcard_exec(taskStruct *task){
                     strcmp(task->context.fileName,parametres);
                     task->context.ptrFile=entry;
                     task->context.lineNumber=0;
-                    interpreteur(task, &task->context);
+                    interpreteur(task);
                 }
             }
             if (!fileFound){

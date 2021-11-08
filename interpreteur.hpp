@@ -14,5 +14,5 @@
 #ifndef __INTERPRETEUR_HPP
     #define __INTERPRETEUR_HPP
 
-    extern void interpreteur(taskStructPtr task, t_context *context);
+    extern void interpreteur(taskStructPtr task);
 #endif

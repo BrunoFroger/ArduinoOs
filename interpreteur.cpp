@@ -92,7 +92,7 @@ void afficheDonnee(taskStruct *task, char *donnee){
             sprintf(printString,"ligne %d => ERREUR : manque '\"' en fin de chaine\n");Serial.print(printString);
         } 
     } else if (donnee[0] == '$'){
-        // traitement d'(une variable)
+        // TODO traitement d'(une variable)
     } else {
         sprintf(printString,"ligne %d => ERREUR : imossible afficher <%s>\n", donnee);Serial.print(printString);
     }
@@ -133,13 +133,12 @@ void evalueInstruction(taskStruct *task, char *instruction){
 //      interpreteLigne
 //
 //-----------------------------------
-int interpreteLigne(char *ligne, int numLigne){
-//int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
+//int interpreteLigne(char *ligne, int numLigne){
+int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
     sprintf(printString, "---------------------------\n"); Serial.print(printString);
     //sprintf(printString, "interpreteur %s => interpreteLigne => on interprete la ligne numero %d => <%s>\n", task->name, ligne); Serial.print(printString);
-    sprintf(printString, "interpreteur => interpreteLigne => on interprete la ligne numero %d => <%s>\n", ligne); Serial.print(printString);
+    sprintf(printString, "interpreteur => interpreteLigne => on interprete la ligne numero %d => <%s>\n", numLigne, ligne); Serial.print(printString);
 
-    /*
     char expression[50];
     // tests syntaxe
     char lastCar=ligne[strlen(ligne)-1];
@@ -183,7 +182,6 @@ int interpreteLigne(char *ligne, int numLigne){
     } else {
         evalueInstruction(task, ligne);
     }
-    */
     return 0;
 }
 
@@ -257,7 +255,7 @@ int analyseLigne(taskStruct *task, char *ligne, int numLigne){
     sprintf(printString, "interpreteur => analyseLigne => ligne numero %d a interpreter <%s>\n", numLigne, ligne); Serial.print(printString);
     int resultat = 0;
     //resultat = interpreteLigne(task, ligne, numLigne);
-    resultat = interpreteLigne(ligne, numLigne);
+    resultat = interpreteLigne(task, ligne, numLigne);
     return resultat;
 }
 //-----------------------------------
@@ -265,15 +263,15 @@ int analyseLigne(taskStruct *task, char *ligne, int numLigne){
 //      interpreteur
 //
 //-----------------------------------
-void interpreteur(taskStruct *task, t_context *context){
+void interpreteur(taskStruct *task){
     int nbErreurs=0;
     sprintf(printString, "interpreteur => debut du script <%s>\n", task->name); Serial.print(printString);
-    if (context->ptrFile == NULL){
-        sprintf(printString, "interpreteur => impossible de lire le fichier <%s>\n", context->fileName); Serial.print(printString);
+    if (task->context.ptrFile == NULL){
+        sprintf(printString, "interpreteur => impossible de lire le fichier <%s>\n", task->context.fileName); Serial.print(printString);
         return;
     }
     File script;
-    script = context->ptrFile;
+    script = task->context.ptrFile;
     char carlu;
     char ligne[100]="";
     int idx=0;
