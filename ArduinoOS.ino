@@ -35,7 +35,7 @@ void setup(){
     // run the monitor
     task_add("sdcard", 50, -1);
     task_add("monitor", 50, -1);
-    task_add("afficheur", 50, -1);
+    //task_add("afficheur", 50, -1);
     // run tasks for testing
     if (false){
         int nb_iterations = 10;

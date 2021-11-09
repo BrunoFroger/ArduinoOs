@@ -47,7 +47,7 @@ int task_add(char *name, int priority, int parentPid){
     void (*waitFct)(taskStructPtr);
     void (*wakeupFct)(taskStructPtr);
     //sprintf(printString, "task_add => debut\n"); Serial.print(printString);
-    sprintf(printString, "task_add => tentative ajout tache %s \n", name); Serial.print(printString);
+    //sprintf(printString, "task_add => tentative ajout tache %s \n", name); Serial.print(printString);
     if (strcmp(name, "") == 0){
         return true;
     } else if (strncmp(name, "monitor", 7) == 0){

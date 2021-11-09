@@ -28,6 +28,7 @@
     #define TASK_RETURN_OK  0
     #define TASK_RETURN_KO  1
     #define DEFAULT_PRIORITY    64
+    #define NB_VAR_PAR_TACHE    5
 
     extern char printString[250];
 
@@ -45,7 +46,7 @@
 
     typedef struct variableStructure{
         char key[10];
-        char value[20];
+        int value;
     } t_variable;
 
     typedef struct sdCardParamStruct {
@@ -60,7 +61,9 @@
         char fileName[50];
         File ptrFile;
         int lineNumber;
-        t_variable listeVariables[10];
+        int nbErreurs=0;
+        bool insideIf=false;
+        bool insideElse=false;
     } t_context;
 
     typedef struct taskStructure{
@@ -74,10 +77,7 @@
         int (*execFct)(taskStructPtr task);
         void (*waitFct)(taskStructPtr task);
         void (*wakeupFct)(taskStructPtr task);
-
-        bool insideIf=false;
-        bool insideElse=false;
-        t_variable lstVar[10];
+        t_variable lstVar[NB_VAR_PAR_TACHE];
 
         t_context context;
         t_SdCardParam sdCardParam;
