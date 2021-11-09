@@ -108,7 +108,7 @@ void evalueInstruction(taskStruct *task, char *instruction){
     sprintf(printString, "interpreteur => evalueInstruction => evalue %s\n", instruction); Serial.print(printString);
     // supressrion du ';'
     char lastChar = instruction[strlen(instruction)-1];
-    sprintf(printString, "interpreteur => evalueInstruction => lastChar =%c \n", lastChar); Serial.print(printString);
+    //sprintf(printString, "interpreteur => evalueInstruction => lastChar =%c \n", lastChar); Serial.print(printString);
     if (lastChar == ';'){
         //Serial.println("suppression du ';'");
         instruction[strlen(instruction)-1]='\0';
@@ -116,7 +116,7 @@ void evalueInstruction(taskStruct *task, char *instruction){
     if (strncmp(instruction,"echo", 4) == 0){
         //sprintf(tmp,"echo detecté\n");Serial.print(tmp);
         tmp1=&instruction[4];
-        sprintf(printString, "evalueInstruction => valeur a afficher %s\n", tmp1); Serial.print(printString);
+        //sprintf(printString, "evalueInstruction => valeur a afficher %s\n", tmp1); Serial.print(printString);
         afficheDonnee(task, tmp1);
     } else {
         // execution d'un autre script
@@ -278,7 +278,8 @@ void interpreteur(taskStruct *task){
     int erreur = 0;
     task->insideIf=false;
     task->insideElse=false;
-    while (script.available()){
+    bool endOfLine=false;
+    while (script.available() && !endOfLine){
         carlu = script.read();
         if (carlu == '\n'){
             // ligne a traiter
@@ -288,32 +289,80 @@ void interpreteur(taskStruct *task){
             if ( erreur != 0){
                 nbErreurs++;
             }
+            endOfLine=true;
         } else {
             ligne[idx++]=carlu;
             ligne[idx]='\0';
         }
     }
-    // traitement de la derniere ligne si elle ne se termine pas par un '\n'
-    if (strlen(ligne) > 0){
-        erreur = analyseLigne(task, ligne, numLigne++);
-        if ( erreur != 0){
+    if (!script.available()){
+        // traitement de la derniere ligne si elle ne se termine pas par un '\n'
+        if (strlen(ligne) > 0){
+            erreur = analyseLigne(task, ligne, numLigne++);
+            if ( erreur != 0){
+                nbErreurs++;
+            }
+        }
+
+        if (task->insideElse || task->insideIf){
+            sprintf(printString,"ligne %d => ERREUR : Manque fi pour if\n");Serial.print(printString);
             nbErreurs++;
         }
-    }
 
-    if (task->insideElse || task->insideIf){
-        sprintf(printString,"ligne %d => ERREUR : Manque fi pour if\n");Serial.print(printString);
-        nbErreurs++;
-    }
-
-    if ( nbErreurs != 0){
-        if (nbErreurs > 1){
-            sprintf(printString, "interpreteur => %d erreurs se sont produites\n", nbErreurs);
-        } else {
-            sprintf(printString, "interpreteur => %d erreur s'est produite\n", nbErreurs);
+        if ( nbErreurs != 0){
+            if (nbErreurs > 1){
+                sprintf(printString, "interpreteur => %d erreurs se sont produites\n", nbErreurs);
+            } else {
+                sprintf(printString, "interpreteur => %d erreur s'est produite\n", nbErreurs);
+            }
+            Serial.print(printString);
         }
-         Serial.print(printString);
+        task->status=DEAD;
+        sprintf(printString, "interpreteur => fin\n"); Serial.print(printString);
+    } else {
+        sprintf(printString, "interpreteur => on repasse la main au scheduler avant de traiter la ligne suivante\n"); Serial.print(printString);
     }
-    task->status=DEAD;
-    sprintf(printString, "interpreteur => fin\n"); Serial.print(printString);
+
+}
+
+
+
+//-----------------------------------
+//
+//      interpreteur_init
+//
+//-----------------------------------
+void interpreteur_init(taskStruct *task){
+    task->status = RUN;
+    //sprintf(printString, "interpreteur_init \n"); Serial.print(printString);
+}
+
+//-----------------------------------
+//
+//      interpreteur_exec
+//
+//-----------------------------------
+int interpreteur_exec(taskStruct *task){
+    //sprintf(printString, "interpreteur_exec => debut\n"); Serial.print(printString);
+
+
+}
+
+
+//-----------------------------------
+//
+//      interpreteur_wait
+//
+//-----------------------------------
+void interpreteur_wait(taskStruct *task){
+    task->status = DEAD;
+}
+
+//-----------------------------------
+//
+//      interpreteur_wakeup
+//
+//-----------------------------------
+void interpreteur_wakeup(taskStruct *task){
+    task->status = RUN;
 }

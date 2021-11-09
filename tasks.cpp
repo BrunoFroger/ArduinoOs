@@ -20,6 +20,7 @@
 #include "priority.hpp"
 #include "afficheur.hpp"
 #include "sdcard.hpp"
+#include "interpreteur.hpp"
 
 //-----------------------------------
 //
@@ -112,6 +113,13 @@ int task_add(char *name, int priority, int parentPid){
         initFct=sdcard_init;
         waitFct=sdcard_wait;
         wakeupFct=sdcard_wakeup;
+    } else if (strncmp(name, "interpreteur", 6) == 0){
+        //sprintf(printString, "task_add => interpreteur\n"); Serial.print(printString);
+        tacheNameOK = true;
+        execFct=interpreteur_exec;
+        initFct=interpreteur_init;
+        waitFct=interpreteur_wait;
+        wakeupFct=interpreteur_wakeup;
     } else {
         if (is_sdcard_initialized()){
             char tmp1[100];

@@ -225,12 +225,14 @@ int sdcard_exec(taskStruct *task){
                 //sprintf(printString, "sdcard_exec => test du fichier <%s> \n", tmp1); Serial.print(printString);
                 if (strcmp(parametres,tmp1) == 0){
                     sprintf(printString, "sdcard_exec => execution du script <%s> \n", parametres); Serial.print(printString);
+                    sprintf(tmp1,"interpreteur %s", parametres); Serial.print(printString);
                     fileFound=true;
                     // executer interpreteur sur e fichier
-                    strcmp(task->context.fileName,parametres);
-                    task->context.ptrFile=entry;
-                    task->context.lineNumber=0;
-                    interpreteur(task);
+                    //strcmp(task->context.fileName,parametres);
+                    //task->context.ptrFile=entry;
+                    //task->context.lineNumber=0;
+                    task_add(tmp1,task->priority, task->pid);
+                    //interpreteur(task);
                 }
             }
             if (!fileFound){
@@ -250,7 +252,7 @@ int sdcard_exec(taskStruct *task){
 //
 //-----------------------------------
 void sdcard_wait(taskStruct *task){
-    //task->status = DEAD;
+    //task->status = RUN;
 }
 
 //-----------------------------------
