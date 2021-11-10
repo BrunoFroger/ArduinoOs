@@ -1,5 +1,7 @@
 # testAllIfSimple.scr
 
+a=10;
+
 if ($a > 0)
 	echo "$a > 0";
 fi
@@ -7,6 +9,8 @@ fi
 if ($a >= 0)
 	echo "$a >= 0";
 fi
+
+a = -10;
 
 if ($a < 0)
 	echo "$a < 0";
@@ -16,9 +20,13 @@ if ($a <= 0)
 	echo "$a <= 0";
 fi
 
+a=0;
+
 if ($a == 0)
 	echo "$a == 0";
 fi
+
+a=1;
 
 if ($a != 0)
 	echo "$a != 0";

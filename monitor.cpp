@@ -31,7 +31,7 @@ void monitor_displayPrompt(void){
 //
 //-----------------------------------
 void monitor_init(taskStruct *task){
-    sprintf(printString, "monitor_init => debut\n", command); Serial.print(printString);
+    //sprintf(printString, "monitor_init => debut\n", command); Serial.print(printString);
     strcpy(command,"");
     task->status = WAIT;
 }

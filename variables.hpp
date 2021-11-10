@@ -63,6 +63,7 @@
         int lineNumber;
         int nbErreurs=0;
         bool insideIf=false;
+        bool resultTest;
         bool insideElse=false;
     } t_context;
 

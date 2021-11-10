@@ -1,0 +1,9 @@
+# test else ok
+
+a = 10;
+ 
+if ($a == 0)
+	echo "then execute => KO";
+else
+	echo "else execute => OK";
+fi

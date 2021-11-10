@@ -112,8 +112,8 @@ void analyse_parametres(taskStruct *task, char *parametres){
 void printDirectory(taskStruct *task, char *directoryName, char * parametres, int numTabs) {
     const char *tmp1;
     reset_parametres(task);
-    sprintf(printString, "liste des fichiers du repertoire <%s>\n",directoryName);Serial.print(printString);
-    sprintf(printString, "avec comme parametres <%s>\n",parametres);Serial.print(printString);
+    //sprintf(printString, "liste des fichiers du repertoire <%s>\n",directoryName);Serial.print(printString);
+    //sprintf(printString, "avec comme parametres <%s>\n",parametres);Serial.print(printString);
     analyse_parametres(task, parametres);
     File directory = SD.open(directoryName);
     while (true) {
@@ -295,7 +295,7 @@ void sdcard_wait(taskStruct *task){
 //
 //-----------------------------------
 void sdcard_wakeup(taskStruct *task){
-    sprintf(printString, "sdcard_wakeup => pid(%d)\n", task->pid); Serial.print(printString);
+    //sprintf(printString, "sdcard_wakeup => pid(%d)\n", task->pid); Serial.print(printString);
     task->status = DEAD;
 }
 

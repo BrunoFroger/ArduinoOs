@@ -68,7 +68,7 @@ void scheduler_loop(void){
                 wakeupPpid=taskTbl[i].ppid;
                 for (int j = 0 ; j < NB_TASKS ; j++){
                     if (taskTbl[j].pid == wakeupPpid){
-                        sprintf(printString, "<%s(pid=%d)> reveille sa tache parent <%s(pid=%d)>\n", taskTbl[i].name, taskTbl[i].pid, taskTbl[j].name, wakeupPpid); Serial.print(printString);
+                        //sprintf(printString, "<%s(pid=%d)> reveille sa tache parent <%s(pid=%d)>\n", taskTbl[i].name, taskTbl[i].pid, taskTbl[j].name, wakeupPpid); Serial.print(printString);
                         taskTbl[j].wakeupFct(&taskTbl[j]);
                         break;
                     }
