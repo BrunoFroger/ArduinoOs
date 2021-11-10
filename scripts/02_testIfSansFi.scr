@@ -1,0 +1,4 @@
+# testIfSansFi.scr
+
+if ($a == 0)
+	echo "bonjour";

@@ -1,0 +1,33 @@
+# affectations et tests valeurs 
+
+a = 10;
+		b=2;	# ligne avec tabutation et commentaire
+
+c =$a+ $b;
+
+echo $c; echo $b;
+
+if ($c == $b)
+	echo "c = b";
+fi
+if ($c != $b)
+	echo "c != b";
+fi
+if ($c > $b)
+	echo "c > b";
+fi
+if ($c >= $b)
+	echo "c >= b";
+fi
+if ($c < $b)
+	echo "c < b";
+fi
+if ($c <= $b)
+	echo "c <= b";
+fi
+
+if ($c == $a )
+	echo "c = a";
+else
+	echo "c different de a";
+fi

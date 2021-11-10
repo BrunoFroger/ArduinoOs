@@ -1,0 +1,25 @@
+# testAllIfSimple.scr
+
+if ($a > 0)
+	echo "$a > 0";
+fi
+
+if ($a >= 0)
+	echo "$a >= 0";
+fi
+
+if ($a < 0)
+	echo "$a < 0";
+fi
+
+if ($a <= 0)
+	echo "$a <= 0";
+fi
+
+if ($a == 0)
+	echo "$a == 0";
+fi
+
+if ($a != 0)
+	echo "$a != 0";
+fi

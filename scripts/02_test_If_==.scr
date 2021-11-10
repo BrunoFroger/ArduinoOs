@@ -1,0 +1,17 @@
+# test ==
+
+a = 0;
+ 
+if ($a == 0)
+	echo "resultat OK => $a = 0";
+else
+	echo "resultat KO => $a n'est pas = a 0";
+fi
+
+a = 15;
+ 
+if ($ == 0)
+	echo "resultat KO => $a = 0";
+else
+	echo "resultat OK => $a n'est pas = a 0";
+fi

@@ -1,0 +1,9 @@
+# testIfElseSimple.scr
+
+a=0;
+
+if ($a == 0)
+	echo "bonjour";
+else
+	echo "bonsoir";
+fi

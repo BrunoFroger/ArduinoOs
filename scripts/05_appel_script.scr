@@ -1,0 +1,7 @@
+# appel_script_depuis_autre_script
+
+echo "debut";
+
+testIfSimple.scr;
+
+echo "fin";

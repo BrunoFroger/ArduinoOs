@@ -1,0 +1,13 @@
+# script arduinoOs
+
+# script principal de test de toutes les fonctionnalites
+
+
+# tests affectation de variables
+01_affectation.scr
+01_affectations.scr
+01_affectations_tests_valeurs.scr
+
+# tests if
+
+			
