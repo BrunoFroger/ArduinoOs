@@ -37,6 +37,35 @@ void task_init(void){
 
 //-----------------------------------
 //
+//      task_help
+//
+//-----------------------------------
+void task_help(void){
+    sprintf(printString, "task_help => debut\n"); Serial.print(printString);
+    sprintf(printString, "liste des commandes : \n"); Serial.print(printString);
+    sprintf(printString, "- monitor\n"); Serial.print(printString);
+    sprintf(printString, "- ps\n"); Serial.print(printString);
+    sprintf(printString, "- env\n"); Serial.print(printString);
+    sprintf(printString, "- set\n"); Serial.print(printString);
+    sprintf(printString, "- kill\n"); Serial.print(printString);
+    sprintf(printString, "- nop\n"); Serial.print(printString);
+    sprintf(printString, "- priority\n"); Serial.print(printString);
+    sprintf(printString, "- afficheur\n"); Serial.print(printString);
+    sprintf(printString, "- sdcard\n"); Serial.print(printString);
+    sprintf(printString, "      - ls\n"); Serial.print(printString);
+    sprintf(printString, "      - cd ; change de repertoire\n"); Serial.print(printString);
+    sprintf(printString, "      - pwd : repertoire courant\n"); Serial.print(printString);
+    sprintf(printString, "      - cat : affiche contenu d'un fichier texte\n"); Serial.print(printString);
+    sprintf(printString, "- interpreteur : execute un script ligne a ligne\n"); Serial.print(printString);
+    sprintf(printString, "      - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n"); Serial.print(printString);
+    sprintf(printString, "      - echo\"chaine\" : affiche chaine\n"); Serial.print(printString);
+    sprintf(printString, "      - vars : affiche la liste des variables d'une tache\n"); Serial.print(printString);
+    sprintf(printString, "- help\n"); Serial.print(printString);
+    
+}
+
+//-----------------------------------
+//
 //      task_add
 //
 //-----------------------------------
@@ -113,13 +142,18 @@ int task_add(char *name, int priority, int parentPid){
         initFct=sdcard_init;
         waitFct=sdcard_wait;
         wakeupFct=sdcard_wakeup;
-    } else if (strncmp(name, "interpreteur", 6) == 0){
+    } else if (strncmp(name, "interpreteur", 12) == 0){
         //sprintf(printString, "task_add => interpreteur\n"); Serial.print(printString);
         tacheNameOK = true;
         execFct=interpreteur_exec;
         initFct=interpreteur_init;
         waitFct=interpreteur_wait;
         wakeupFct=interpreteur_wakeup;
+    } else if (strncmp(name, "help", 4) == 0){
+        //sprintf(printString, "task_add => help\n"); Serial.print(printString);
+        tacheNameOK = true;
+        task_help();
+        return 0;
     } else {
         if (is_sdcard_initialized()){
             char tmp1[100];

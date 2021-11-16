@@ -1,3 +1,4 @@
 #!/bin/bash
 
-cp *.scr /Volumes/EOS_DIGITAL/
+
+cp scripts/*.scr /Volumes/EOS_DIGITAL/

@@ -1,8 +1,30 @@
 # affectations
-
 a = 10;
-		b=2;	# ligne avec tabutation et commentaire
+b=2;
+d=4;
+e=5
+vars;
 
 c =$a+ $b;
-
 echo $c;
+vars;
+
+c =$a - $b;
+echo $c;
+vars;
+
+c =$a * $b;
+echo $c;
+vars;
+
+c =$a / $b;
+echo $c;
+vars;
+
+c =$a + $b * $d;
+echo $c;
+vars;
+
+c =($a + $b) * $d;
+echo $c;
+vars;
