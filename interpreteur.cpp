@@ -34,6 +34,22 @@ int evalueVariable(taskStruct *task, char *variable){
     return 0;
 }
 
+
+//-----------------------------------
+//
+//      decomposeExpression
+//
+//-----------------------------------
+void decomposeExpression(taskStruct *task, char *expression, char *operande1, char *operande2, char *operateur){
+    strcpy(operande1,expression);
+    char *ptr=strchr(operande1,operateur[0]);
+    ptr[0]='\0';
+    ptr=strchr(expression,operateur[0]);
+    ptr+=strlen(operateur);
+    strcpy(operande2,ptr);
+    sprintf(printString, "decomposeExpression => <%s> decomposé en <%s> <%s> <%s>\n", expression, operande1, operateur, operande2); Serial.print(printString);
+}
+
 //-----------------------------------
 //
 //      evalueExpression
@@ -44,8 +60,15 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     char operande2[50];
     char operateur[5];
     char *ptr1, *ptr2;
-    sprintf(printString, "evalueExpression => evaluation de l'expression <%s>\n", expression); Serial.print(printString);
+    sprintf(printString, "evalueExpression => debut evaluation de l'expression <%s>\n", expression); Serial.print(printString);
     // cherche s'il y a des parentheses
+    //sprintf(printString, "evalueExpression => expression[0]=%c,  expression[strlen(expression)]=%c \n", expression[0], expression[strlen(expression)-1]); Serial.print(printString);
+    if ((expression[0] == '(') && (expression[strlen(expression)-1] == ')')) {
+        strcpy(operande1,&expression[1]);
+        operande1[strlen(operande1)-1] = '\0';
+        strcpy(expression,operande1);
+        //sprintf(printString, "evalueExpression => evaluation de l'expression sans parentheses<%s>\n", expression); Serial.print(printString);
+    }
     ptr1=strchr(expression, '(');
     ptr2=strrchr(expression, ')');
     char sousExpression[50];
@@ -57,8 +80,8 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         }
         strcpy(sousExpression, ptr1+1);
         sousExpression[ptr2-ptr1-1]='\0';
-        ptr2[0]=' ';
-        //sprintf(printString, "evalueExpression => evaluation de la sous expression <%s>\n", sousExpression); Serial.print(printString);
+        //ptr2[0]=' ';
+        sprintf(printString, "evalueExpression => evaluation de la sous expression <%s>\n", sousExpression); Serial.print(printString);
         if (evalueExpression(task, sousExpression, resultat) != 0){
             // on a detecté une erreur dans l'expresssion entre parentheses => on quitte
             return -1;
@@ -69,11 +92,12 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
             ptr1=strchr(tmp, '(');
             ptr1[0] = '\0';
             strcat(tmp, resultat);
-            strcat(tmp, ptr2);
             // on enleve la parenthese finale
+            strcat(tmp, ptr2+1);
             tmp[strlen(tmp)]='\0';
+            strcpy(sousExpression,tmp);
             // on evalue l'expression entre parentheses
-            if (evalueExpression(task, tmp, resultat) != 0){
+            if (evalueExpression(task, sousExpression, resultat) != 0){
                 return -1;
             } else {
                 // l'evaluation s'est bien passée on sort positivement 
@@ -89,15 +113,9 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     // on decompose en plusieurs evaluations en fonction des priorites des operateurs
     // on commence par evaluer les '*'
     if (strchr(resultat, '+') != nullptr){
-        // evaluation des deux items autour de cette operateur
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
+        // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
+        decomposeExpression(task, expression, operande1, operande2, "+");
         //sprintf(printString, "evalueExpression => evaluation d'une addition <%s>\n", resultat); Serial.print(printString);
-        strcpy(operande1, resultat);
-        ptr1 = strchr(resultat, '+');
-        strcpy(operande2, ptr1+1);
-        ptr1 = strchr(operande1, '+');
-        ptr1[0]='\0';
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
         //sprintf(printString, "evalueExpression => evaluation de l'operande 2 <%s>\n", operande2); Serial.print(printString);
@@ -108,15 +126,8 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         strcpy(resultat, String(op1 + op2).c_str());
         // TOT BE TESTED
     } else if (strchr(resultat, '-') != nullptr){
-        // evaluation des deux items autour de cette operateur
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
-        //sprintf(printString, "evalueExpression => evaluation d'une soustraction <%s>\n", resultat); Serial.print(printString);
-        strcpy(operande1, resultat);
-        ptr1 = strchr(resultat, '-');
-        strcpy(operande2, ptr1+1);
-        ptr1 = strchr(operande1, '-');
-        ptr1[0]='\0';
+        // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
+        decomposeExpression(task, expression, operande1, operande2, "-");
         //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
@@ -127,14 +138,8 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         int op2 = String(operande2).toInt();
         strcpy(resultat, String(op1 - op2).c_str());
     } else if (strchr(resultat, '*') != nullptr){
-        // evaluation des deux items autour de cette operateur
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
-        //sprintf(printString, "evalueExpression => evaluation d'une multiplication <%s>\n", resultat); Serial.print(printString);
-        strcpy(operande1, resultat);
-        ptr1 = strchr(resultat, '*');
-        strcpy(operande2, ptr1+1);
-        ptr1 = strchr(operande1, '*');
-        ptr1[0]='\0';
+        // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
+        decomposeExpression(task, expression, operande1, operande2, "*");
         //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
@@ -145,15 +150,8 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         int op2 = String(operande2).toInt();
         strcpy(resultat, String(op1 * op2).c_str());
     } else if (strchr(resultat, '/') != nullptr){
-        // evaluation des deux items autour de cette operateur
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
-        // decomposition de chaque cote de cette operatuer puis evaluation de ces deux operandes
-        //sprintf(printString, "evalueExpression => evaluation d'une division <%s>\n", resultat); Serial.print(printString);
-        strcpy(operande1, resultat);
-        ptr1 = strchr(resultat, '/');
-        strcpy(operande2, ptr1+1);
-        ptr1 = strchr(operande1, '/');
-        ptr1[0]='\0';
+        // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
+        decomposeExpression(task, expression, operande1, operande2, "/");
         //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
@@ -171,22 +169,8 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
             strcpy(resultat, String(val).c_str());
         }
     }
-    sprintf(printString, "evalueExpression => fin d'evaluaution de %s =>le resultat est <%s>\n", expression, resultat); Serial.print(printString); 
+    sprintf(printString, "evalueExpression => fin d'evaluation de %s =>le resultat est <%s>\n", expression, resultat); Serial.print(printString); 
     return 0;
-}
-
-//-----------------------------------
-//
-//      decomposeExpression
-//
-//-----------------------------------
-void decomposeExpression(taskStruct *task, char *expression, char *operande1, char *operande2, char *operateur){
-    strcpy(operande1,expression);
-    char *ptr=strchr(operande1,operateur[0]);
-    ptr[0]='\0';
-    ptr=strchr(expression,operateur[0]);
-    ptr+=strlen(operateur);
-    strcpy(operande2,ptr);
 }
 
 //-----------------------------------

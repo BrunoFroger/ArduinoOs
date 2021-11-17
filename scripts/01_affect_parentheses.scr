@@ -1,0 +1,14 @@
+
+a=3;
+b=4;
+c=5;
+d=10;
+vars;
+e=$d/$c;
+vars;
+f=$e*($a+$b);
+vars;
+f=$e*$a+$b;
+vars;
+vars;
+f=($a+$b)*$e;

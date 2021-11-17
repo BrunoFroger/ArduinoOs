@@ -28,7 +28,7 @@
     #define TASK_RETURN_OK  0
     #define TASK_RETURN_KO  1
     #define DEFAULT_PRIORITY    64
-    #define NB_VAR_PAR_TACHE    5
+    #define NB_VAR_PAR_TACHE    10
 
     extern char printString[250];
 
