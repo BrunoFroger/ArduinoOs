@@ -74,7 +74,7 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     for (int i = 0 ; i < nb_tab ; i++) {
         strcat(tabs, "\t");
     }
-    sprintf(printString, "%sevalueExpression => evaluation de <%s>\n", tabs, expression); Serial.print(printString);
+    //sprintf(printString, "%sevalueExpression => evaluation de <%s>\n", tabs, expression); Serial.print(printString);
     // cherche s'il y a des parentheses
     //sprintf(printString, "evalueExpression => expression[0]=%c,  expression[strlen(expression)]=%c \n", expression[0], expression[strlen(expression)-1]); Serial.print(printString);
     char debut_exp[50], fin_exp[50], exp_a_evaluer[50];
@@ -83,24 +83,25 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         int idx_debut = ptr1 - &expression[0];
         int idx_zone=0;     // index de la chaine de ce qu'il y a dans la parenthese a traiter
         strncpy(debut_exp, expression, idx_debut);
-        sprintf(printString, "%sevalueExpression => chaine avant sous chaine entre parentheses <%s> \n", tabs, debut_exp); Serial.print(printString);
+        //sprintf(printString, "%sevalueExpression => chaine avant sous chaine entre parentheses <%s> \n", tabs, debut_exp); Serial.print(printString);
         //strcpy(operande1, ptr1);
         int j=0;
         exp_a_evaluer[j] = '\0';
         for (int i = idx_debut+1 ; i < strlen(expression) ; i++){
             if (expression[i] != ')'){
-                Serial.print(expression[i]);
+                //Serial.print(expression[i]);
                 exp_a_evaluer[j++] = expression[i];
                 exp_a_evaluer[j] = '\0';
             } else {
+                // ajout d'ne instruction inutile pour que le break soit pris en compte
                 Serial.println();
                 // on a trouvé la parenthese fermante corrrespondante, c'est la fin de la sous chaine a evaluer
                 break;
             }
         }
-        sprintf(printString, "%sevalueExpression => sous chaine entre parentheses a evaluer <%s> \n", tabs, exp_a_evaluer); Serial.print(printString);
+        //sprintf(printString, "%sevalueExpression => sous chaine entre parentheses a evaluer <%s> \n", tabs, exp_a_evaluer); Serial.print(printString);
         strcpy(fin_exp,&expression[idx_debut + j +2]);
-        sprintf(printString, "%sevalueExpression => chaine apres sous chaine entre parentheses <%s> \n", tabs, fin_exp); Serial.print(printString);
+        //sprintf(printString, "%sevalueExpression => chaine apres sous chaine entre parentheses <%s> \n", tabs, fin_exp); Serial.print(printString);
         evalueExpression(task, exp_a_evaluer, resultat);
         strcat(debut_exp, resultat);
         strcat(debut_exp, fin_exp);
@@ -108,69 +109,6 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         sprintf(printString, "%sevalueExpression => resultat apres evaluation du contenu de la parenthese <%s> \n", tabs, expression); Serial.print(printString);
         evalueExpression(task, expression, resultat);
 
-        /*
-        for (int i = 0 ; i < strlen(expression) ; i++){               // TODO a completer et debuguer
-            if (operande1[i] == '('){
-                strncpy(debut_exp, expression, ptr1 - &expression[0]);
-                sprintf(printString, "%sevalueExpression => nouvelle '(' detecteee en pos %d\n", tabs, i); Serial.print(printString);
-                // on rencontre une autre parenthese ouvrante
-                //on incremente le level
-                level++;
-                ptr2=&operande1[i];
-                //sprintf(printString, "%sevalueExpression => ( trouvee %d\n", tabs, level); Serial.print(printString);
-            }
-            if (operande1[i] == ')'){
-                sprintf(printString, "%sevalueExpression => ')' detecteee en pos %d\n", tabs, i); Serial.print(printString);
-                ptr3=&operande1[i];
-                // ptr3 => parenthese fermante
-                level--;
-                Serial.println();
-                strcpy(sousExpression, ptr2+1);
-                ptr1=strchr(sousExpression,')');
-                ptr1[0]='\0';
-                ptr3++;
-                sprintf(printString, "%sevalueExpression => ) on evalue ptr1=<%s>, ptr2=<%s>, ptr3=<%s> => sousExpression=<%s>\n", tabs, ptr1, ptr2, ptr3, sousExpression); Serial.print(printString);
-                evalueExpression(task, sousExpression, resultat);
-                sprintf(printString, "%sevalueExpression => resultat evaluation entre () de <%s> = <%s>\n", tabs, sousExpression, resultat); Serial.print(printString);
-                // remplacer le resultat dans l'expression
-                sprintf(printString, "%sevalueExpression => il faut remplacer <%s> par <%s> dans <%s>\n", tabs, sousExpression, resultat, expression); Serial.print(printString);
-                // TODO
-                strcpy(sousExpression, expression);
-                ptr1=strstr(sousExpression, resultat);
-                sousExpression[&ptr1[0]]='\0';
-                strcpy(operande2, sousExpression);
-                strcat(operande2, ptr3);
-                strcpy(sousExpression,operande2);
-                break;
-            }
-        }
-        sprintf(printString, "%sevalueExpression => fin boucle for\n", tabs); Serial.print(printString);
-        //ptr2[0]=' ';
-        //sprintf(printString, "evalueExpression => evaluation de la sous expression <%s>\n", sousExpression); Serial.print(printString);
-        if (evalueExpression(task, sousExpression, resultat) != 0){
-            // on a detecté une erreur dans l'expresssion entre parentheses => on quitte
-            return -1;
-        } else {
-            // on remplace la sous expression par le resultat
-            char tmp[50];
-            strcpy(tmp, expression);
-            ptr1=strchr(tmp, '(');
-            ptr1[0] = '\0';
-            strcat(tmp, resultat);
-            // on enleve la parenthese finale
-            strcat(tmp, ptr2+1);
-            tmp[strlen(tmp)]='\0';
-            strcpy(sousExpression,tmp);
-            // on evalue l'expression entre parentheses
-            if (evalueExpression(task, sousExpression, resultat) != 0){
-                return -1;
-            } else {
-                // l'evaluation s'est bien passée on sort positivement 
-                return 0;
-            }
-        }*/
-    //} else {
-        //strcpy(sousExpression, expression);
     }
     strcpy(resultat, expression);
     //sprintf(printString, "evalueExpression => evaluation de l'expression sans parentheses <%s>\n", resultat); Serial.print(printString);
@@ -234,7 +172,7 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
             strcpy(resultat, String(val).c_str());
         }
     }
-    sprintf(printString, "%sevalueExpression => le resultat de <%s> est <%s>\n", tabs, expression, resultat); Serial.print(printString); 
+    //sprintf(printString, "%sevalueExpression => le resultat de <%s> est <%s>\n", tabs, expression, resultat); Serial.print(printString); 
     nb_tab--;
     return 0;
 }
@@ -322,7 +260,7 @@ int evalueAffectation(taskStruct *task, char *operation){
     //sprintf(printString, "interpreteur => evalueAffectation => variable <%s>\n", variable); Serial.print(printString);
     ptr=strchr(operation,'=')+1;
     strcpy(valeur,ptr);
-    sprintf(printString, "interpreteur => evalueAffectation => evalue <%s> = <%s>\n", variable, valeur); Serial.print(printString);
+    //sprintf(printString, "interpreteur => evalueAffectation => evalue <%s> = <%s>\n", variable, valeur); Serial.print(printString);
     evalueExpression(task, valeur, resultat);
     strcpy(valeur,resultat);
     for (int i = 0 ; i < NB_VAR_PAR_TACHE ; i++){
