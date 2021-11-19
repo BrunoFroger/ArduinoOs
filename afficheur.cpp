@@ -11,6 +11,7 @@
 #include <arduino.h>
 #include "variables.hpp"
 #include "sdcard.hpp"
+#include "log.hpp"
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <SPI.h>
@@ -94,7 +95,7 @@ int setValuePos(int lig, int col){
 //
 //-----------------------------------
 void affiche_titre(void){
-    sprintf(printString, "affiche_titre => debut\n"); Serial.print(printString);
+    log("affiche_titre => debut\n");
     
     tft.setTextSize(3); 
     // affiche nouveau titre
@@ -123,12 +124,12 @@ void affiche_titre(void){
             tft.setTextSize(2); 
             tft.setTextColor(_WHITE);
             setTextPos(0,0);
-            sprintf(printString, "+------+-------\n"); Serial.print(printString);
-            sprintf(printString, "|    nom   | pid | statu |\n"); Serial.print(printString);
-            sprintf(printString, "+------+-------\n"); Serial.print(printString);
+            log("+------+-------\n");
+            log("|    nom   | pid | statu |\n");
+            log("+------+-------\n"); 
             break;
     }*/
-    sprintf(printString, "affiche_titre => fin\n"); Serial.print(printString);
+    log("affiche_titre => fin\n");
 }
 
 //-----------------------------------
@@ -215,7 +216,7 @@ void affiche_valeur_chaine(int ligne, int colonne, char *old_value, char *new_va
 //
 //-----------------------------------
 int afficheur_exec(taskStruct *task){
-    //sprintf(printString, "afficheur_exec => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("afficheur_exec => pid(%d)\n", task->pid);
 
     switch(afficheur_mode){
         case AFFICHEUR_ENV:
@@ -244,7 +245,7 @@ int afficheur_exec(taskStruct *task){
             for (int i =0 ; i < NB_TASKS ; i++){
                 if (taskTbl[i].status != FREE){
                     setTextPos(i + 1,0);
-                    sprintf(printString,"| %20s "); Serial.print(printString);
+                    log("| %20s ");
                 }
             }
             break;

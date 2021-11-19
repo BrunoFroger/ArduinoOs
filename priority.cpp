@@ -13,6 +13,7 @@
 #include "task.hpp"
 #include "env.hpp"
 #include "tools.hpp"
+#include "log.hpp"
 
 
 //-----------------------------------

@@ -2,7 +2,7 @@ Ce module logiciel permet d'apprehender les concepts d'os avec un de veloppement
 
 - scheduler : permet de sequencer le'execution des taches 
 - monitor : permet de lancer des commandes via l'interface Serial
--liste des taches disponibles  :
+- liste des taches disponibles  :
     - ps : liste des taches 
     - env : visualistaion des varaibles d'environnement (systeme et user)
     - set : creation d'une variable d'environnement user

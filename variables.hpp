@@ -30,7 +30,7 @@
     #define DEFAULT_PRIORITY    64
     #define NB_VAR_PAR_TACHE    10
 
-    extern char printString[250];
+    //extern char printString[250];
 
     extern int standardPriority;
     extern int currentPriority;

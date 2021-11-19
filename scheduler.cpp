@@ -14,6 +14,7 @@
 #include "task.hpp"
 #include "monitor.hpp"
 #include "tools.hpp"
+#include "log.hpp"
 
 int wakeupPpid;
 
@@ -33,7 +34,7 @@ void scheduler_init(void){
 //-----------------------------------
 void scheduler_loop(void){
     int lower_priority=0;
-    //sprintf(printString, "scheduler_loop => %s ---------------------------------\n", get_time()); Serial.print(tmp);
+    //log("scheduler_loop => %s ---------------------------------\n", get_time()); Serial.print(tmp);
     int current_nb_process=0;
     int current_run_process=0;
     int current_wait_process=0;
@@ -42,7 +43,7 @@ void scheduler_loop(void){
         switch(taskTbl[i].status){
             case RUN:
                 current_nb_process++;
-                //sprintf(printString, "scheduler_loop => test tache pos %d => status = %d => RUN tache %s\n",i, taskTbl[i].status,taskTbl[i].name); Serial.print(tmp);
+                //log("scheduler_loop => test tache pos %d => status = %d => RUN tache %s\n",i, taskTbl[i].status,taskTbl[i].name);
                 if (taskTbl[i].currentPriority < currentPriority){
                     taskTbl[i].currentPriority++;
                     current_active_process++;
@@ -57,18 +58,18 @@ void scheduler_loop(void){
                 break;
             case INIT:
                 current_nb_process++;
-                //sprintf(printString, "scheduler_loop => test tache pos %d => status = %d => INIT tache %s\n",i, taskTbl[i].status,taskTbl[i].name); Serial.print(printString);
+                //log("scheduler_loop => test tache pos %d => status = %d => INIT tache %s\n",i, taskTbl[i].status,taskTbl[i].name); 
                 taskTbl[i].initFct(&taskTbl[i]);
                 break;
             case FREE:
                 break;
             case DEAD:
-                //sprintf(printString, "scheduler_loop => test tache pos %d => status = %d => DEAD tache %s\n",i, taskTbl[i].status,taskTbl[i].name); Serial.print(printString);
+                //log("scheduler_loop => test tache pos %d => status = %d => DEAD tache %s\n",i, taskTbl[i].status,taskTbl[i].name);
                 current_nb_process++;
                 wakeupPpid=taskTbl[i].ppid;
                 for (int j = 0 ; j < NB_TASKS ; j++){
                     if (taskTbl[j].pid == wakeupPpid){
-                        //sprintf(printString, "<%s(pid=%d)> reveille sa tache parent <%s(pid=%d)>\n", taskTbl[i].name, taskTbl[i].pid, taskTbl[j].name, wakeupPpid); Serial.print(printString);
+                        //log("<%s(pid=%d)> reveille sa tache parent <%s(pid=%d)>\n", taskTbl[i].name, taskTbl[i].pid, taskTbl[j].name, wakeupPpid);
                         taskTbl[j].wakeupFct(&taskTbl[j]);
                         break;
                     }
@@ -77,12 +78,12 @@ void scheduler_loop(void){
                 break;
             case WAIT:
                 current_nb_process++;
-                //sprintf(printString, "scheduler_loop => test tache pos %d => status = %d => WAIT tache %s\n",i, taskTbl[i].status,taskTbl[i].name); Serial.print(printString);
+                //log("scheduler_loop => test tache pos %d => status = %d => WAIT tache %s\n",i, taskTbl[i].status,taskTbl[i].name);
                 taskTbl[i].waitFct(&taskTbl[i]);
                 current_wait_process++;
                 break;
             default:
-                sprintf(printString, "scheduler_loop => status de tache inconnu : %d\n",taskTbl[i].status); Serial.print(printString);
+                log("scheduler_loop => status de tache inconnu : %d\n",taskTbl[i].status);
         }
     }
     nb_process=current_nb_process;

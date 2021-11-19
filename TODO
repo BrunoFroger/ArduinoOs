@@ -1,0 +1,11 @@
+Liste des actions a mener :
+
+- bug a corriger :
+    - pb sur le break d'un for qui ne s'execute pas s'il n'y a pas dinstruction Serial.print() a l'interieur
+
+- travaux en cours :
+    - parentheses :
+        - tester plusieurs cas d'imbrication de parentheses 
+    - fonction de log avec nombre de parametres multiples
+
+- nouvelles fonctionnalites :

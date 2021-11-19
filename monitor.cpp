@@ -11,6 +11,7 @@
 #include <arduino.h>
 #include "variables.hpp"
 #include "task.hpp"
+#include "log.hpp"
 
 
 char command[50];
@@ -21,7 +22,7 @@ char command[50];
 //
 //-----------------------------------
 void monitor_displayPrompt(void){
-    sprintf(printString, "arduinoOS > "); Serial.print(printString);
+    log("arduinoOS > ");
 }
 
 
@@ -31,7 +32,7 @@ void monitor_displayPrompt(void){
 //
 //-----------------------------------
 void monitor_init(taskStruct *task){
-    //sprintf(printString, "monitor_init => debut\n", command); Serial.print(printString);
+    //log("monitor_init => debut\n", command);
     strcpy(command,"");
     task->status = WAIT;
 }
@@ -43,10 +44,10 @@ void monitor_init(taskStruct *task){
 //
 //-----------------------------------
 void monitor_runCommand(taskStruct *task, char *command){
-    //sprintf(printString, "monitor_runCommand => command = <%s>\n", command); Serial.print(printString);
+    //log("monitor_runCommand => command = <%s>\n", command); 
     command[strlen(command)]=='\0';
-    //sprintf(printString, "monitor_runCommand > command = <%s>", command); Serial.print(printString);
-    //sprintf(printString, "monitor_runCommand => %s\n", command); Serial.print(printString);
+    //log("monitor_runCommand > command = <%s>", command); 
+    //log("monitor_runCommand => %s\n", command); 
     task_add(command,standardPriority, task->pid);
     task->status=WAIT;
 }
@@ -57,13 +58,13 @@ void monitor_runCommand(taskStruct *task, char *command){
 //
 //-----------------------------------
 int monitor_exec(taskStruct *task){
-    //sprintf(printString, "monitor_exec => debut\n"); Serial.print(printString);    
+    //log("monitor_exec => debut\n");   
     //int cardispo = Serial.available();
     int carlu;
     while(Serial.available() > 0) // tant qu'il y a des caractères à lire
     {
         carlu = Serial.read(); // on lit le caractère
-        //sprintf(printString, "monitor_exec => car lu = %c\n",carlu); Serial.print(printString); 
+        //log("monitor_exec => car lu = %c\n",carlu); 
         Serial.write(carlu); // puis on le renvoi à l’expéditeur tel quel
         if (carlu == '\n'){
             monitor_runCommand(task, command);
@@ -85,7 +86,7 @@ int monitor_exec(taskStruct *task){
 //-----------------------------------
 void monitor_wait(taskStruct *task){
     if (Serial.available() > 0){
-        //sprintf(printString, "monitor_wait => caractere saisi\n"); Serial.print(printString);
+        //log("monitor_wait => caractere saisi\n");
         //monitor_displayPrompt();
         task->status = RUN;
     }

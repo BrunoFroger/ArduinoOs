@@ -11,7 +11,7 @@
 #include <arduino.h>
 #include "variables.hpp"
 
-char printString[250];
+//char printString[250];
 
 taskStruct taskTbl[NB_TASKS];
 //char internalCommands[NB_INTERNAL_COMMANDS][SIZE_INTERNAL_COMMAND];

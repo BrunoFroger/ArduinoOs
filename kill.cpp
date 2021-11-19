@@ -13,6 +13,7 @@
 #include "task.hpp"
 #include "kill.hpp"
 #include "tools.hpp"
+#include "log.hpp"
 
 //-----------------------------------
 //
@@ -29,19 +30,19 @@ void kill_init(taskStruct *task){
 //
 //-----------------------------------
 int kill_exec(taskStruct *task){
-    //sprintf(printString, "kill_exec => debut\n"); Serial.print(printString);    
-    //sprintf(printString, "kill_exec => commande = %s\n",task->name); Serial.print(printString);
+    //log("kill_exec => debut\n");
+    //log("kill_exec => commande = %s\n",task->name);
     char strPid[25];
     strcpy(strPid,task->name);
     tools_string_cut(strPid,' ', 1);
     if (strlen(strPid) <= 0){
-        //sprintf(printString, "kill => erreur pid manquant\n"); Serial.print(printString);
+        //log("kill => erreur pid manquant\n"); 
         task->status = DEAD;
         return 0;
     }
-    //sprintf(printString, "kill_exec => pid = %s\n",strPid); Serial.print(printString);
+    //log("kill_exec => pid = %s\n",strPid); 
     int pid = String(strPid).toInt();
-    //sprintf(printString, "kill_exec => pid = %d\n",pid); Serial.print(printString);
+    //log("kill_exec => pid = %d\n",pid);
     for (int i = 0 ; i < NB_TASKS ; i++){
         taskStruct *tache = &taskTbl[i];
         if (pid == tache->pid){

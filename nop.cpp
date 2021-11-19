@@ -13,6 +13,7 @@
 #include "task.hpp"
 #include "env.hpp"
 #include "tools.hpp"
+#include "log.hpp"
 
 
 //-----------------------------------
@@ -21,7 +22,7 @@
 //
 //-----------------------------------
 void nop_init(taskStruct *task){
-    //sprintf(printString, "nop_init => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("nop_init => pid(%d)\n", task->pid); Serial.print(printString);
     task->status = RUN;
 }
 
@@ -31,7 +32,7 @@ void nop_init(taskStruct *task){
 //
 //-----------------------------------
 int nop_exec(taskStruct *task){
-    //sprintf(printString, "nop_exec => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("nop_exec => pid(%d)\n", task->pid); Serial.print(printString);
 }
 
 //-----------------------------------

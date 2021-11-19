@@ -11,6 +11,7 @@
 
 #include <arduino.h>
 #include "variables.hpp"
+#include "log.hpp"
 
 char arduinoOSTime[50];
 
@@ -24,7 +25,7 @@ char *tools_string_cut(char *inputString, char delimiter, int index){
     char result[25]="";
     int ptrResult=0;
     for (int i = 0 ; i < strlen(inputString) ; i++){
-        //sprintf(printString, "analyse du carctere %c\n",inputString[i]);Serial.print(printString);
+        //log("analyse du carctere %c\n",inputString[i]);Serial.print(printString);
         if (inputString[i] == delimiter){
             cpt++;
         }

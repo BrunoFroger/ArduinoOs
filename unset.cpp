@@ -13,6 +13,7 @@
 #include "task.hpp"
 #include "env.hpp"
 #include "tools.hpp"
+#include "log.hpp"
 
 
 //-----------------------------------
@@ -40,7 +41,7 @@ int unset_exec(taskStruct *task){
     strcpy(tmp1, task->name);
     tools_string_cut(tmp1,' ', 2);
     strcpy(value, tmp1);
-    //sprintf(printString, "set_exec => key = <%s>, value = <%s>\n", key, value); Serial.print(printString);
+    //log("set_exec => key = <%s>, value = <%s>\n", key, value);
     for (int i = 0 ; i < NB_ENV_VARS ; i++){
         if (strcmp(envTbl[i].key,"") == 0){
             strcpy(envTbl[i].key,"");
@@ -50,7 +51,7 @@ int unset_exec(taskStruct *task){
         }
     }
     if (!setOK){
-        sprintf(printString, "set => impossible de memoriser cette variable (table pleine)\n", key, value); Serial.print(printString);
+        log("set => impossible de memoriser cette variable (table pleine)\n");
     }
     task->status = WAIT;
 }

@@ -17,6 +17,7 @@
 #include "sdcard.hpp"
 #include "tools.hpp"
 #include "interpreteur.hpp"
+#include "log.hpp"
 
 
 #define SD_CS    14
@@ -98,7 +99,7 @@ void analyse_parametres(taskStruct *task, char *parametres){
                     task->sdCardParam.recursif=true;
                     break;
                 default:
-                    sprintf(printString, "parametre <%c> inconnu\n", parametres[i]);Serial.print(printString);
+                    log("parametre <%c> inconnu\n", parametres[i]);
             }
         }
     }
@@ -112,8 +113,8 @@ void analyse_parametres(taskStruct *task, char *parametres){
 void printDirectory(taskStruct *task, char *directoryName, char * parametres, int numTabs) {
     const char *tmp1;
     reset_parametres(task);
-    //sprintf(printString, "liste des fichiers du repertoire <%s>\n",directoryName);Serial.print(printString);
-    //sprintf(printString, "avec comme parametres <%s>\n",parametres);Serial.print(printString);
+    //log("liste des fichiers du repertoire <%s>\n",directoryName);
+    //log("avec comme parametres <%s>\n",parametres);
     analyse_parametres(task, parametres);
     File directory = SD.open(directoryName);
     while (true) {
@@ -145,19 +146,19 @@ void catFile(taskStruct *task, char * filename) {
     char *tmp1;
     char tmp2[100];
     char carlu;
-    //sprintf(printString,"catFile =>  tentative affichage du fichier <%s>\n", filename);Serial.print(printString);
+    //log("catFile =>  tentative affichage du fichier <%s>\n", filename);
     File directory = SD.open(task->sdCardParam.currentPathName);
     while (true) {
         File entry = directory.openNextFile();
         if (! entry) {
-            sprintf(printString,"ERREUR => le fichier <%s> est introuvable\n", filename);Serial.print(printString);
+            log("ERREUR => le fichier <%s> est introuvable\n", filename);
             break;
         }
         strcpy(tmp2,entry.name());
         tmp1=&(tmp2[1]);
-        //sprintf(printString,"catFile =>  test fichier <%s>\n", tmp1);Serial.print(printString);
+        //log("catFile =>  test fichier <%s>\n", tmp1);
         if (strcmp(tmp1, filename) == 0) {
-            //sprintf(printString,"catFile =>  affiche le fichier <%s>\n", entry.name());Serial.print(printString);
+            //log("catFile =>  affiche le fichier <%s>\n", entry.name());
             while (entry.available()){
                 carlu = entry.read();
                 Serial.print(carlu);
@@ -185,11 +186,11 @@ char *getPwd(taskStruct *task){
 //
 //-----------------------------------
 void extractFileName(char *path){
-    //sprintf(printString, "sdcard_exec => extractFile Name de (%s)\n", path); Serial.print(printString);
+    //log("sdcard_exec => extractFile Name de (%s)\n", path);
     char *tmp1;
     tmp1 = strchr(path, '/');
     while (tmp1 != nullptr){
-        //sprintf(printString, "sdcard_exec => extractFile Name tmp1 (%s)\n", tmp1); Serial.print(printString);
+        //log("sdcard_exec => extractFile Name tmp1 (%s)\n", tmp1);
         strcpy(path, &tmp1[1]);
         tmp1 = strchr(path, '/');
     }
@@ -201,17 +202,17 @@ void extractFileName(char *path){
 //-----------------------------------
 int sdcard_exec(taskStruct *task){
     char *parametres;
-    //sprintf(printString, "sdcard_exec => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("sdcard_exec => pid(%d)\n", task->pid);
     if (strlen(task->name) > 7) {
         parametres = &task->name[7];
-        //sprintf(printString, "sdcard_exec => execution commande externe <%s>\n", parametres); Serial.print(printString);
+        //log("sdcard_exec => execution commande externe <%s>\n", parametres);
         if (strncmp(parametres, "ls", 2) == 0){
             if (strlen (parametres) > 3){
                 parametres = &parametres[3];
-                //sprintf(printString, "sdcard_exec => ls de <%s> avec parametres <%s>\n", task->sdCardParam.currentDirectoryName, parametres); Serial.print(printString);
+                //log("sdcard_exec => ls de <%s> avec parametres <%s>\n", task->sdCardParam.currentDirectoryName, parametres); 
                 printDirectory(task, task->sdCardParam.currentPathName,parametres,0);
             } else {
-                //sprintf(printString, "sdcard_exec => ls de <%s> sans parametres\n", task->sdCardParam.currentDirectoryName); Serial.print(printString);
+                //log("sdcard_exec => ls de <%s> sans parametres\n", task->sdCardParam.currentDirectoryName);
                 printDirectory(task, task->sdCardParam.currentPathName,"", 0);
             }
             task->status=DEAD;
@@ -223,7 +224,7 @@ int sdcard_exec(taskStruct *task){
                 strcpy(tmp1,parametres);
                 if (parametres[0] != '-'){
                     tools_string_cut(tmp1, ' ', 0);
-                    //sprintf(printString, "sdcard_exec => current dir passe de <%s> a <%s>\n", task->sdCardParam.currentDirectoryName, tmp1); Serial.print(printString);
+                    //log("sdcard_exec => current dir passe de <%s> a <%s>\n", task->sdCardParam.currentDirectoryName, tmp1);
                     strcpy(task->sdCardParam.currentDirectoryName,tmp1);
                     if (task->sdCardParam.currentDirectoryName[0] == '/'){
                         strcpy(task->sdCardParam.currentPathName, task->sdCardParam.currentDirectoryName);
@@ -238,7 +239,7 @@ int sdcard_exec(taskStruct *task){
             task->status=DEAD;
         } else if(strncmp(parametres, "pwd", 3) == 0){
             char tmp1[100];
-            //sprintf(printString, "sdcard_exec => pwd = <%s> \n", getPwd(task)); Serial.print(printString);
+            //log("sdcard_exec => pwd = <%s> \n", getPwd(task));
             task->status=DEAD;
         } else if(strncmp(parametres, "cat", 3) == 0){
             char tmp1[100];
@@ -247,7 +248,7 @@ int sdcard_exec(taskStruct *task){
             task->status=DEAD;
         } else {
             // test si un script existe avec ce nom
-            //sprintf(printString, "sdcard_exec => lancement d'un script externe = <%s> \n", parametres); Serial.print(printString);
+            //log("sdcard_exec => lancement d'un script externe = <%s> \n", parametres);
             File directory = SD.open(task->sdCardParam.currentDirectoryName);
             bool fileFound=false;
             while (true) {
@@ -259,10 +260,10 @@ int sdcard_exec(taskStruct *task){
                 char tmp1[50];
                 strcpy(tmp1, entry.name());
                 extractFileName(tmp1);
-                //sprintf(printString, "sdcard_exec => test du fichier <%s> \n", tmp1); Serial.print(printString);
+                //log("sdcard_exec => test du fichier <%s> \n", tmp1);
                 if (strcmp(parametres,tmp1) == 0){
-                    //sprintf(printString, "sdcard_exec => execution du script <%s> \n", parametres); Serial.print(printString);
-                    sprintf(tmp1,"interpreteur %s", parametres); Serial.print(printString);
+                    //log("sdcard_exec => execution du script <%s> \n", parametres);
+                    sprintf(tmp1,"interpreteur %s", parametres); 
                     fileFound=true;
                     task_add(tmp1,task->priority, task->pid);
                     task->status=WAIT;
@@ -270,7 +271,7 @@ int sdcard_exec(taskStruct *task){
                 }
             }
             if (!fileFound){
-                sprintf(printString, "sdcard_exec => le script <%s> n'a pas été trouvé\n", parametres); Serial.print(printString);
+                log("sdcard_exec => le script <%s> n'a pas été trouvé\n", parametres);
                 task->status=DEAD;
             }
         }
@@ -295,7 +296,7 @@ void sdcard_wait(taskStruct *task){
 //
 //-----------------------------------
 void sdcard_wakeup(taskStruct *task){
-    //sprintf(printString, "sdcard_wakeup => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("sdcard_wakeup => pid(%d)\n", task->pid);
     task->status = DEAD;
 }
 

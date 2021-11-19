@@ -10,14 +10,13 @@
 
 #include <arduino.h>
 #include "variables.hpp"
+#include "log.hpp"
 
 #define ERR_ERROR   1
 #define ERR_WARNING 2
 #define ERR_INFO    3
 
 
-int nb_tab=0;
-char tabs[25];
 //-----------------------------------
 //
 //      evalueVariable
@@ -32,7 +31,7 @@ int evalueVariable(taskStruct *task, char *variable){
             return var->value;
         }
     }
-    sprintf(printString, "ERREUR => la variable <%s> n'est pas initialisée\n", variable); Serial.print(printString);
+    log("ERREUR => la variable <%s> n'est pas initialisée\n", variable);
     return 0;
 }
 
@@ -48,7 +47,6 @@ void decomposeExpression(taskStruct *task, char *expression, char *operande1, ch
         strcpy(operande1,&expression[1]);
         operande1[strlen(operande1)-1] = '\0';
         strcpy(expression,operande1);
-        //sprintf(printString, "evalueExpression => evaluation de l'expression sans parentheses<%s>\n", expression); Serial.print(printString);
     }
     strcpy(operande1,expression);
     char *ptr=strchr(operande1,operateur[0]);
@@ -56,7 +54,7 @@ void decomposeExpression(taskStruct *task, char *expression, char *operande1, ch
     ptr=strchr(expression,operateur[0]);
     ptr+=strlen(operateur);
     strcpy(operande2,ptr);
-    sprintf(printString, "%sdecomposeExpression => <%s> decomposé en <%s> <%s> <%s>\n", tabs, expression, operande1, operateur, operande2); Serial.print(printString);
+    //log("decomposeExpression => <%s> decomposé en <%s> <%s> <%s>\n", expression, operande1, operateur, operande2); 
 }
 
 //-----------------------------------
@@ -69,59 +67,68 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     char operande2[50];
     char operateur[5];
     char *ptr1, *ptr2, *ptr3;
-    nb_tab++;
-    strcpy(tabs,"");
-    for (int i = 0 ; i < nb_tab ; i++) {
-        strcat(tabs, "\t");
-    }
-    //sprintf(printString, "%sevalueExpression => evaluation de <%s>\n", tabs, expression); Serial.print(printString);
+    nbTabs++;
+    //log("evalueExpression => evaluation de <%s>\n", expression);
     // cherche s'il y a des parentheses
-    //sprintf(printString, "evalueExpression => expression[0]=%c,  expression[strlen(expression)]=%c \n", expression[0], expression[strlen(expression)-1]); Serial.print(printString);
+    //log("evalueExpression => expression[0]=%c,  expression[strlen(expression)]=%c \n", expression[0], expression[strlen(expression)-1]);
     char debut_exp[50], fin_exp[50], exp_a_evaluer[50];
     ptr1=strrchr(expression, '('); // derniere parenthese ouvrante de l'expression
     if (ptr1 != nullptr){
         int idx_debut = ptr1 - &expression[0];
-        int idx_zone=0;     // index de la chaine de ce qu'il y a dans la parenthese a traiter
-        strncpy(debut_exp, expression, idx_debut);
-        //sprintf(printString, "%sevalueExpression => chaine avant sous chaine entre parentheses <%s> \n", tabs, debut_exp); Serial.print(printString);
-        //strcpy(operande1, ptr1);
+        //int idx_zone=0;     // index de la chaine de ce qu'il y a dans la parenthese a traiter
+        if (idx_debut <= 0){
+            strcpy(debut_exp,"");
+        } else {
+            strncpy(debut_exp, expression, idx_debut);
+        }
+        //log("evalueExpression => chaine avant sous chaine entre parentheses <%s> \n", debut_exp);
         int j=0;
         exp_a_evaluer[j] = '\0';
-        for (int i = idx_debut+1 ; i < strlen(expression) ; i++){
+        int i = idx_debut + 1;
+        while (i <= strlen(expression)){
             if (expression[i] != ')'){
                 //Serial.print(expression[i]);
                 exp_a_evaluer[j++] = expression[i];
                 exp_a_evaluer[j] = '\0';
             } else {
-                // ajout d'ne instruction inutile pour que le break soit pris en compte
-                Serial.println();
                 // on a trouvé la parenthese fermante corrrespondante, c'est la fin de la sous chaine a evaluer
                 break;
             }
+            i++;
         }
-        //sprintf(printString, "%sevalueExpression => sous chaine entre parentheses a evaluer <%s> \n", tabs, exp_a_evaluer); Serial.print(printString);
-        strcpy(fin_exp,&expression[idx_debut + j +2]);
-        //sprintf(printString, "%sevalueExpression => chaine apres sous chaine entre parentheses <%s> \n", tabs, fin_exp); Serial.print(printString);
+        //log("evalueExpression => sous chaine entre parentheses a evaluer <%s> \n", exp_a_evaluer);
+        int tmp_idx = idx_debut + j + 2;
+        //log("evalueExpression => tmp_idx =  %d vs strlen(<%s>) = %d\n", tmp_idx, expression, strlen(expression));
+        if (tmp_idx <= strlen(expression)){
+            char *tmpExp = &expression[tmp_idx];
+            //log("evalueExpression => tmpExp =  <%s>\n", tmpExp);
+            strcpy(fin_exp,tmpExp);
+        } else {
+            strcpy(fin_exp,"");
+            //strcpy(fin_exp,"");
+        }
+        //log("evalueExpression => chaine apres sous chaine entre parentheses <%s> \n", fin_exp);
         evalueExpression(task, exp_a_evaluer, resultat);
         strcat(debut_exp, resultat);
         strcat(debut_exp, fin_exp);
         strcpy(expression, debut_exp);
-        sprintf(printString, "%sevalueExpression => resultat apres evaluation du contenu de la parenthese <%s> \n", tabs, expression); Serial.print(printString);
+        strcpy(expression, debut_exp);
+        //log("evalueExpression => resultat apres evaluation du contenu de la parenthese <%s> \n", expression);
         evalueExpression(task, expression, resultat);
 
     }
     strcpy(resultat, expression);
-    //sprintf(printString, "evalueExpression => evaluation de l'expression sans parentheses <%s>\n", resultat); Serial.print(printString);
+    //log("evalueExpression => evaluation de l'expression sans parentheses <%s>\n", resultat);
     // on est en presence d'une expression sans parentheses <operande_1> <operateur_1> <operande_2> <operateur_2> .... <operande_n> 
     // on decompose en plusieurs evaluations en fonction des priorites des operateurs
     // on commence par evaluer les '*'
     if (strchr(resultat, '+') != nullptr){
         // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
         decomposeExpression(task, expression, operande1, operande2, "+");
-        //sprintf(printString, "evalueExpression => evaluation d'une addition <%s>\n", resultat); Serial.print(printString);
+        //log("evalueExpression => evaluation d'une addition <%s>\n", resultat);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 2 <%s>\n", operande2); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 2 <%s>\n", operande2);
         evalueExpression(task, operande2, resultat);
         strcpy(operande2, resultat);
         int op1 = String(operande1).toInt();
@@ -131,10 +138,10 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     } else if (strchr(resultat, '-') != nullptr){
         // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
         decomposeExpression(task, expression, operande1, operande2, "-");
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 1 <%s>\n", operande1);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 2 <%s>\n", operande2); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 2 <%s>\n", operande2);
         evalueExpression(task, operande2, resultat);
         strcpy(operande2, resultat);
         int op1 = String(operande1).toInt();
@@ -143,10 +150,10 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     } else if (strchr(resultat, '*') != nullptr){
         // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
         decomposeExpression(task, expression, operande1, operande2, "*");
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 1 <%s>\n", operande1);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 2 <%s>\n", operande2); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 2 <%s>\n", operande2);
         evalueExpression(task, operande2, resultat);
         strcpy(operande2, resultat);
         int op1 = String(operande1).toInt();
@@ -155,10 +162,10 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
     } else if (strchr(resultat, '/') != nullptr){
         // decomposition de chaque cote de cette operateur puis evaluation de ses deux operandes
         decomposeExpression(task, expression, operande1, operande2, "/");
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 1 <%s>\n", operande1); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 1 <%s>\n", operande1);
         evalueExpression(task, operande1, resultat);
         strcpy(operande1, resultat);
-        //sprintf(printString, "evalueExpression => evaluation de l'operande 2 <%s>\n", operande2); Serial.print(printString);
+        //log("evalueExpression => evaluation de l'operande 2 <%s>\n", operande2);
         evalueExpression(task, operande2, resultat);
         strcpy(operande2, resultat);
         int op1 = String(operande1).toInt();
@@ -166,14 +173,17 @@ int evalueExpression(taskStruct *task, char *expression, char *resultat){
         strcpy(resultat, String(op1 / op2).c_str());
     } else {
         // pas d'operateur on sort avec le resultat contenant une expression finie
-        //sprintf(printString, "evalueExpression => fin d'evaluaution  le resultat est <%s>\n", resultat); Serial.print(printString);
+        //log("evalueExpression => fin d'evaluaution  le resultat est <%s>\n", resultat);
         if (resultat[0] == '$'){
             int val = evalueVariable(task, resultat);
             strcpy(resultat, String(val).c_str());
         }
     }
-    //sprintf(printString, "%sevalueExpression => le resultat de <%s> est <%s>\n", tabs, expression, resultat); Serial.print(printString); 
-    nb_tab--;
+    //delay(10);
+    // instructions bidon pour eviter erreur de calcul si on n'affiche pas le log (BUG)
+    log("");
+    //log("evalueExpression => le resultat de <%s> est <%s>\n", expression, resultat);
+    nbTabs--;
     return 0;
 }
 
@@ -187,44 +197,63 @@ bool evalueTest(taskStruct *task, char *expression){
     char operande2[50]="";
     int valeur1, valeur2;
     bool returnValue;
-    //sprintf(tmp, "evalueTest => evaluation de %s\n",expression); Serial.print(tmp);
+    //log("evalueTest => evaluation de %s\n",expression);
     // decomposition de l'expression
     if (strstr(expression,"==") != nullptr){
-        //Serial.println("evalueTest => test == detecte");
+        //log("evalueTest => test == detecte\n");
         decomposeExpression(task, expression, operande1, operande2, "==");
         if (operande1[0] == '$'){
-            //sprintf(printString, "evalueTest => operande1 (%s) est une variable\n",operande1); Serial.print(printString);
+            //log("evalueTest => operande1 (%s) est une variable\n",operande1);
             valeur1=evalueVariable(task, operande1);
         } else {
             valeur1 = String(operande1).toInt();
         }
         if (operande2[0] == '$'){
-            //sprintf(printString, "evalueTest => operande1 (%s) est une variable\n",operande2); Serial.print(printString);
+            //log("evalueTest => operande1 (%s) est une variable\n",operande2);
             valeur2=evalueVariable(task, operande2);
         } else {
             valeur2 = String(operande2).toInt();
         }
         returnValue = (valeur1 == valeur2);
-        //sprintf(printString, "evalueTest => resultat expression <%s> => %d\n",expression, returnValue); Serial.print(printString);
+        //log("evalueTest => resultat expression <%s> => %d\n",expression, returnValue);
     } else if (strstr(expression,"!=") != nullptr){
-        //Serial.println("evalueTest => test != detecte");
+        //log("evalueTest => test != detecte\n");
         decomposeExpression(task, expression, operande1, operande2, "!=");
     } else if (strstr(expression,"<") != nullptr){
-        //Serial.println("evalueTest => test < detecte");
+        //log("evalueTest => test < detecte\n");
         decomposeExpression(task, expression, operande1, operande2, "<");
     } else if (strstr(expression,"<=") != nullptr){
-        //Serial.println("evalueTest => test <= detecte");
+        //log("evalueTest => test <= detecte\n");
         decomposeExpression(task, expression, operande1, operande2, "<=");
     } else if (strstr(expression,">") != nullptr){
-        //Serial.println("interpreteur => evalueTest => test > detecte");
+        //log("interpreteur => evalueTest => test > detecte\n");
         decomposeExpression(task, expression, operande1, operande2, ">=");
     } else if (strstr(expression,">=") != nullptr){
-        //Serial.println("interpreteur => evalueTest => test >= detecte");
+        //log("interpreteur => evalueTest => test >= detecte\n");
         decomposeExpression(task, expression, operande1, operande2, ">");
     } else {
-        sprintf(printString, "interpreteur => evalueTest => expression incomprise => <%s>\n",expression); Serial.print(printString);
+        log("interpreteur => evalueTest => expression incomprise => <%s>\n",expression);
     }
     return returnValue;
+}
+
+//-----------------------------------
+//
+//      displayVariable
+//
+//-----------------------------------
+void displayVariable(taskStruct *task, char *key){
+    for (int i = 0; i < NB_VAR_PAR_TACHE ; i++){
+        t_variable *var = &(task->lstVar[i]);
+        if (strcmp(var->key,key) == 0){
+            //log("affichage la variable %s => ", var->key);
+            log("%d\n", var->value);
+            break;
+        }
+        if (strcmp(var->key,"") == 0){
+            break;            
+        }
+    }
 }
 
 //-----------------------------------
@@ -233,13 +262,14 @@ bool evalueTest(taskStruct *task, char *expression){
 //
 //-----------------------------------
 void displayVariables(taskStruct *task){
-    sprintf(printString,"affichage des variables de %s\n", task->name); Serial.print(printString);
+    //log("affichage des variables de %s\n", task->name);
     for (int i = 0; i < NB_VAR_PAR_TACHE ; i++){
         t_variable *var = &(task->lstVar[i]);
         if (strcmp(var->key,"") == 0){
             break;            
         }
-        sprintf(printString,"<%s> : <%d>\n", var->key, var->value); Serial.print(printString);
+        //log("<%s> = <%d>\n", var->key, var->value);
+        log("%s = %d\n", var->key, var->value);
     }
 }
 
@@ -249,7 +279,7 @@ void displayVariables(taskStruct *task){
 //
 //-----------------------------------
 int evalueAffectation(taskStruct *task, char *operation){
-    //sprintf(printString, "interpreteur => evalueAffectation => evalue <%s>\n", operation); Serial.print(printString);
+    //log("interpreteur => evalueAffectation => evalue <%s>\n", operation);
     char variable[50]="";
     char valeur[50]="";
     char resultat[50];
@@ -257,10 +287,10 @@ int evalueAffectation(taskStruct *task, char *operation){
     strcpy(variable, operation);
     char *ptr=strchr(variable,'=');
     ptr[0]='\0';
-    //sprintf(printString, "interpreteur => evalueAffectation => variable <%s>\n", variable); Serial.print(printString);
+    //log("interpreteur => evalueAffectation => variable <%s>\n", variable);
     ptr=strchr(operation,'=')+1;
     strcpy(valeur,ptr);
-    //sprintf(printString, "interpreteur => evalueAffectation => evalue <%s> = <%s>\n", variable, valeur); Serial.print(printString);
+    //log("interpreteur => evalueAffectation => evalue <%s> = <%s>\n", variable, valeur); 
     evalueExpression(task, valeur, resultat);
     strcpy(valeur,resultat);
     for (int i = 0 ; i < NB_VAR_PAR_TACHE ; i++){
@@ -269,20 +299,20 @@ int evalueAffectation(taskStruct *task, char *operation){
             // cette variable est libre on l'initialise
             strcpy(var->key, variable);
             var->value = String(valeur).toInt();
-            sprintf(printString, "interpreteur => evalueAffectation => on affecte <%s> avec <%d>\n", var->key, var->value); Serial.print(printString);
+            //log("interpreteur => evalueAffectation => on affecte <%s> avec <%d>\n", var->key, var->value);
             //displayVariables(task);
             return 0;
         } else {
             if (strcmp(var->key,variable) == 0){
                 // la variable existe deja on met a jour la valeur
                 var->value = String(valeur).toInt();
-                sprintf(printString, "interpreteur => evalueAffectation => on met a jour <%s> avec <%d>\n", var->key, var->value); Serial.print(printString);
+                //log("interpreteur => evalueAffectation => on met a jour <%s> avec <%d>\n", var->key, var->value); 
                 //displayVariables(task);
                 return 0;
             }
         }
     }
-    sprintf(printString, "Impossible de stocker la variable <%s> avec <%d> => table des variables pleine (%d)\n", var->key, var->value, NB_VAR_PAR_TACHE); Serial.print(printString);
+    log("Impossible de stocker la variable <%s> avec <%d> => table des variables pleine (%d)\n", var->key, var->value, NB_VAR_PAR_TACHE); 
     //displayVariables(task);
     return -1;
 }
@@ -296,20 +326,21 @@ void afficheDonnee(taskStruct *task, char *donnee){
     char *tmp1;
     char firstChar = donnee[0];
     char lastChar = donnee[strlen(donnee)-1];
-    //sprintf(printString,"interpreteur => afficheDonnee => <%s>\n",donnee);Serial.print(printString);
-    //sprintf(printString,"firstChar=<%c>, lastChar=<%c>\n",firstChar, lastChar);Serial.print(printString);
+    //log("interpreteur => afficheDonnee => <%s>\n",donnee);
+    //log("firstChar=<%c>, lastChar=<%c>\n",firstChar, lastChar);
     if (donnee[0] == '"'){
         if (donnee[strlen(donnee)-1] == '"'){
             tmp1=&donnee[1];
             tmp1[strlen(tmp1)-1] = '\0';
             Serial.println(tmp1);
         } else {
-            sprintf(printString,"ligne %d => ERREUR : manque '\"' en fin de chaine\n");Serial.print(printString);
+            log("ligne %d => ERREUR : manque '\"' en fin de chaine\n");
         } 
     } else if (donnee[0] == '$'){
-        // TODO traitement d'(une variable)
+        tmp1=&donnee[1];
+        displayVariable(task, tmp1); // A_TESTER
     } else {
-        sprintf(printString,"ligne %d => ERREUR : imossible afficher <%s>\n", donnee);Serial.print(printString);
+        log("ligne %d => ERREUR : imossible afficher <%s>\n", donnee);
     }
 }
 
@@ -321,30 +352,30 @@ void afficheDonnee(taskStruct *task, char *donnee){
 void evalueInstruction(taskStruct *task, char *instruction){
     char tmp2[100];
     char *tmp1;
-    //sprintf(printString, "interpreteur => evalueInstruction => evalue %s\n", instruction); Serial.print(printString);
+    //log("interpreteur => evalueInstruction => evalue %s\n", instruction);
     // supressrion du ';'
     char lastChar = instruction[strlen(instruction)-1];
-    //sprintf(printString, "interpreteur => evalueInstruction => lastChar =%c \n", lastChar); Serial.print(printString);
+    //log("interpreteur => evalueInstruction => lastChar =%c \n", lastChar); 
     if (lastChar == ';'){
-        //Serial.println("suppression du ';'");
+        //log("suppression du ';\n'");
         instruction[strlen(instruction)-1]='\0';
     }
     if (strncmp(instruction,"echo", 4) == 0){
-        //sprintf(tmp,"echo detecté\n");Serial.print(tmp);
+        //log(,"echo detecté\n");
         tmp1=&instruction[4];
-        //sprintf(printString, "evalueInstruction => valeur a afficher %s\n", tmp1); Serial.print(printString);
+        //log("evalueInstruction => valeur a afficher %s\n", tmp1);
         afficheDonnee(task, tmp1);
     } else if (strncmp(instruction,"vars", 5) == 0){
-        //sprintf(tmp,"echo detecté\n");Serial.print(tmp);
+        //log(tmp,"echo detecté\n");
         displayVariables(task);
     } else if (strstr(instruction, "=") != nullptr){
         // evaluation d'une affectation
         evalueAffectation(task, instruction);
     } else {
         // execution d'un autre script
-        //sprintf(printString, "interpreteur => evalueInstruction => script %s a lancer\n", instruction); Serial.print(printString);
+        //log("interpreteur => evalueInstruction => script %s a lancer\n", instruction); 
         sprintf(tmp2, "interpreteur %s", instruction);
-        //sprintf(printString, "interpreteur => evalueInstruction => task_add <%s>\n", tmp2); Serial.print(printString);
+        //log("interpreteur => evalueInstruction => task_add <%s>\n", tmp2); 
         task->status=WAIT;
         task_add(tmp2, task->currentPriority,task->pid);
     }
@@ -356,24 +387,23 @@ void evalueInstruction(taskStruct *task, char *instruction){
 //
 //-----------------------------------
 int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
-    //sprintf(printString, "---------------------------\n"); Serial.print(printString);
-    //sprintf(printString, "interpreteur %s => interpreteLigne => on interprete la ligne numero %d => <%s>\n", task->name, ligne); Serial.print(printString);
-    //sprintf(printString, "interpreteur <%s> => interpreteLigne => on interprete la ligne numero %d => <%s>\n", task->name, numLigne, ligne); Serial.print(printString);
-
+    //log("---------------------------\n"); 
+    //log("interpreteur <%s> => interpreteLigne => on interprete la ligne numero %d => <%s>\n", task->name, numLigne, ligne); 
+    log("%s\n",ligne);
     char expression[50];
     // tests syntaxe
     char lastCar=ligne[strlen(ligne)-1];
     if (strncmp(ligne, "if", 2) == 0){
         if (task->context.insideIf || task->context.insideElse){
-            sprintf(printString,"ligne %d => ERREUR : if imbrique interdit\n", numLigne);Serial.print(printString);
+            log("ligne %d => ERREUR : if imbrique interdit\n", numLigne);
             return -1;
         }
         task->context.insideIf=true;
         // traitement du debut de if
-        //sprintf(printString,"interpreteur => debut de if detecté\n");Serial.print(printString);
+        //log("interpreteur => debut de if detecté\n");
         // recuperation de l'expression de test
         if (ligne[2] != '('){
-            sprintf(printString,"ligne %d => ERREUR : Manque '(' dans if\n", numLigne);Serial.print(printString);
+            log("ligne %d => ERREUR : Manque '(' dans if\n", numLigne);
         }
         int index=0;
         strcpy(expression,"");
@@ -383,53 +413,53 @@ int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
                 expression[index] = '\0';
             }
         }
-        //sprintf(printString,"interpreteur => interpreteLigne => expression trouvee <%s>\n", expression);Serial.print(printString);
+        //log("interpreteur => interpreteLigne => expression trouvee <%s>\n", expression);
         task->context.resultTest = evalueTest(task, expression);
     } else if (strncmp(ligne, "else", 4) == 0){
-        //sprintf(printString,"interpreteur => else detecté\n");Serial.print(printString);
+        //log("interpreteur => else detecté\n");
         task->context.insideElse=true;
         if (!task->context.insideIf){
-            sprintf(printString,"ligne %d => ERREUR : else sans if\n", numLigne);Serial.print(printString);
+            log("ligne %d => ERREUR : else sans if\n", numLigne);
         }
     } else if (strncmp(ligne, "vars", 4) == 0){
-        //sprintf(printString,"interpreteur => vars detecté\n");Serial.print(printString);
+        //log("interpreteur => vars detecté\n");
         displayVariables(task);
     } else if (strncmp(ligne, "fi", 2) == 0){
         // traitement du fin de if
-        //sprintf(printString,"interpreteur => fin de if detecté\n");Serial.print(printString);
+        //log("interpreteur => fin de if detecté\n");
         task->context.insideIf=false;
         task->context.insideElse=false;
     } else if (lastCar != ';'){
-        sprintf(printString,"ligne %d => ERREUR : Manque ';' en fin de ligne <%c>\n", numLigne, lastCar);Serial.print(printString);
+        log("ligne %d => ERREUR : Manque ';' en fin de ligne <%c>\n", numLigne, lastCar);
         return -1;
     } else {
-        //sprintf(printString,"interpreteur => on evalue l'instruction <%s>\n", ligne);Serial.print(printString);
+        //log("interpreteur => on evalue l'instruction <%s>\n", ligne);
         if (task->context.insideIf){
             if (task->context.resultTest){
                 // test si on est dans le then ou dans le else
-                //sprintf(printString,"interpreteur => test = true\n");Serial.print(printString);
+                //log("interpreteur => test = true\n");
                 if (!task->context.insideElse){
                     // on est dans le then on execute
-                    //sprintf(printString,"interpreteur => on evalue les instructions a l'interieur d'un then\n");Serial.print(printString);
+                    //log("interpreteur => on evalue les instructions a l'interieur d'un then\n");
                     evalueInstruction(task, ligne);
                 } else {
-                    //sprintf(printString,"interpreteur => on evalue pas les instructions a l'interieur d'un else\n");Serial.print(printString);
+                    //log("interpreteur => on evalue pas les instructions a l'interieur d'un else\n");
                 }
             } else {
                 // test si on est dans le then ou dans le else
-                //sprintf(printString,"interpreteur => test = false\n");Serial.print(printString);
+                //log("interpreteur => test = false\n");
                 if (task->context.insideElse){
                     // on est dans le then on execute
-                    //sprintf(printString,"interpreteur => on evalue les instructions a l'interieur d'un else\n");Serial.print(printString);
+                    //log("interpreteur => on evalue les instructions a l'interieur d'un else\n");
                     evalueInstruction(task, ligne);
                 } else {
-                    //sprintf(printString,"interpreteur => on evalue pas les instructions a l'interieur d'un then\n");Serial.print(printString);
+                    //log("interpreteur => on evalue pas les instructions a l'interieur d'un then\n");
                 }
 
             }
         } else {
             // on est pas dans un if on execute systematiquement
-            //sprintf(printString,"interpreteur => on est pas dans un if\n");Serial.print(printString);
+            //log("interpreteur => on est pas dans un if\n");
             evalueInstruction(task, ligne);
         }
     }
@@ -444,30 +474,30 @@ int interpreteLigne(taskStruct *task, char *ligne, int numLigne){
 int analyseLigne(taskStruct *task, char *ligne, int numLigne){
     char tmp1[200];
     int index;
-    //sprintf(tmp, "---------------------------\n"); Serial.print(tmp);
-    //sprintf(printString, "interpreteur <%s> => analyseLigne => analyse de la ligne numero %d => <%s>\n", task->name, numLigne, ligne); Serial.print(printString);
+    //log("---------------------------\n");
+    //log("interpreteur <%s> => analyseLigne => analyse de la ligne numero %d => <%s>\n", task->name, numLigne, ligne); 
     // suppression des commentaires
 
     index = strcspn(ligne, "#");
     if (index != strlen(ligne)){
-        //sprintf(printString, "commentaires trouvee en pos %d\n", index); Serial.print(printString);
+        //log("commentaires trouvee en pos %d\n", index); 
         if (index == 0) return 0;
         ligne[index]='\0';
     }
-    //sprintf(printString, "suppression des commentaires => <%s>\n", ligne); Serial.print(printString);
+    //log("suppression des commentaires => <%s>\n", ligne); 
     
     // remplacement des tabulations par des espaces
-    //sprintf(printString, "taille de la ligne %d\n", strlen(ligne)); Serial.print(printString);
+    //log("taille de la ligne %d\n", strlen(ligne)); 
     while (true){
         index = strcspn(ligne, "\t");
         if (index < strlen(ligne)){
-            //sprintf(printString, "tabulations trouvee en pos %d\n", index); Serial.print(printString);
+            //log("tabulations trouvee en pos %d\n", index);
             ligne[index] = ' ';
         }else {
             break;
         }
     }
-    //sprintf(printString, "interpreteur => ligne apres suppression des tabulations <%s>\n", ligne); Serial.print(printString);
+    //log("interpreteur => ligne apres suppression des tabulations <%s>\n", ligne);
     // supression des blancs inutiles
     strcpy(tmp1,"");
     index=0;
@@ -481,7 +511,7 @@ int analyseLigne(taskStruct *task, char *ligne, int numLigne){
                 insideGuillemets=true;
             } else if (ligne[i] != ' '){
                 // caractere != ' ' on garde
-                //sprintf(printString, "on garde le caractere <%c> en pos %d\n", ligne[i], index); Serial.print(printString);
+                //log("on garde le caractere <%c> en pos %d\n", ligne[i], index);
                 tmp1[index++] = ligne[i];
                 tmp1[index]='\0';
             }
@@ -496,14 +526,14 @@ int analyseLigne(taskStruct *task, char *ligne, int numLigne){
         }
     }
     strcpy(ligne, tmp1);
-    //sprintf(printString, "interpreteur => ligne apres suppression des blancs <%s>\n", tmp1); Serial.print(printString);
+    //log("interpreteur => ligne apres suppression des blancs <%s>\n", tmp1);
     // suppression des lignes vides
     if (strlen(ligne) == 0) {
-        //Serial.println("ligne vide => non traitee");
+        //log("ligne vide => non traitee\n");
         return 0;
     }
     // reste ligne a traiter
-    //sprintf(printString, "interpreteur => analyseLigne => ligne numero %d a interpreter <%s>\n", numLigne, ligne); Serial.print(printString);
+    //log("interpreteur => analyseLigne => ligne numero %d a interpreter <%s>\n", numLigne, ligne);
     int resultat = 0;
     //resultat = interpreteLigne(task, ligne, numLigne);
     resultat = interpreteLigne(task, ligne, numLigne);
@@ -515,7 +545,7 @@ int analyseLigne(taskStruct *task, char *ligne, int numLigne){
 //
 //-----------------------------------
 void interpreteur(taskStruct *task){
-    //sprintf(printString, "interpreteur => debut du script <%s>\n", task->name); Serial.print(printString);
+    //log("interpreteur => debut du script <%s>\n", task->name);
     File script;
     script = task->context.ptrFile;
     if (script == NULL){
@@ -554,22 +584,21 @@ void interpreteur(taskStruct *task){
         }
 
         if (task->context.insideElse || task->context.insideIf){
-            sprintf(printString,"ligne %d => ERREUR : Manque fi pour if\n");Serial.print(printString);
+            Serial.println("ligne %d => ERREUR : Manque fi pour if\n");
             task->context.nbErreurs++;
         }
 
         if ( task->context.nbErreurs != 0){
             if (task->context.nbErreurs > 1){
-                sprintf(printString, "interpreteur => %d erreurs se sont produites\n", task->context.nbErreurs);
+                log("interpreteur => %d erreurs se sont produites\n", task->context.nbErreurs);
             } else {
-                sprintf(printString, "interpreteur => %d erreur s'est produite\n", task->context.nbErreurs);
+                log("interpreteur => %d erreur s'est produite\n", task->context.nbErreurs);
             }
-            Serial.print(printString);
         }
         task->status=DEAD;
-        //sprintf(printString, "interpreteur => fin\n"); Serial.print(printString);
+        //log("interpreteur => fin\n");
     } else {
-        //sprintf(printString, "interpreteur => on repasse la main au scheduler avant de traiter la ligne suivante\n"); Serial.print(printString);
+        //log("interpreteur => on repasse la main au scheduler avant de traiter la ligne suivante\n");
     }
 
 }
@@ -583,12 +612,12 @@ void interpreteur(taskStruct *task){
 //-----------------------------------
 void interpreteur_init(taskStruct *task){
     char *parametres;
-    //sprintf(printString, "interpreteur_init => ---------------------------\n"); Serial.print(printString);
-    //sprintf(printString, "interpreteur_init => lancement <%s> pid(%d)\n", task->name, task->pid); Serial.print(printString);
+    //log("interpreteur_init => ---------------------------\n");
+    //log("interpreteur_init => lancement <%s> pid(%d)\n", task->name, task->pid);
     int cdeLength=strlen("interpreteur") + 1;
     if (strlen(task->name) > cdeLength) {
         parametres = &task->name[cdeLength];
-        //sprintf(printString, "interpreteur_init => execution commande externe <%s>\n", parametres); Serial.print(printString);
+        //log("interpreteur_init => execution commande externe <%s>\n", parametres);
     }
     strcpy(task->context.fileName, parametres);
     char fullName[150];
@@ -596,7 +625,7 @@ void interpreteur_init(taskStruct *task){
     strcat(fullName,"/");
     strcat(fullName, parametres);
     if (!SD.exists(fullName)){
-        sprintf(printString, "ERREUR => impossible d'ouvrir le fichier <%s>\n", task->sdCardParam.currentDirectoryName); Serial.print(printString);
+        log("ERREUR => impossible d'ouvrir le fichier <%s>\n", task->sdCardParam.currentDirectoryName);
         task->status=DEAD;
         return;
     } 
@@ -604,7 +633,7 @@ void interpreteur_init(taskStruct *task){
     // executer interpreteur sur ce fichier
     //strcmp(task->context.fileName,parametres);
     //task->context.ptrFile=entry;
-    //sprintf(printString, "interpreteur_init => fichier <%s> trouve => on lance l'interpreteur\n", parametres); Serial.print(printString);
+    //log("interpreteur_init => fichier <%s> trouve => on lance l'interpreteur\n", parametres);
     task->context.lineNumber=0;
     task->context.nbErreurs=0;
     task->context.insideIf=false;
@@ -618,7 +647,7 @@ void interpreteur_init(taskStruct *task){
 //
 //-----------------------------------
 int interpreteur_exec(taskStruct *task){
-    //sprintf(printString, "interpreteur_exec => debut\n"); Serial.print(printString);
+    //log("interpreteur_exec => debut\n");
     interpreteur(task);
     //task->status=DEAD;
 }
@@ -639,6 +668,6 @@ void interpreteur_wait(taskStruct *task){
 //
 //-----------------------------------
 void interpreteur_wakeup(taskStruct *task){
-    //sprintf(printString, "interpreteur_wakeup => pid(%d)\n", task->pid); Serial.print(printString);
+    //log("interpreteur_wakeup => pid(%d)\n", task->pid);
     task->status = RUN;
 }

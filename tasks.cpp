@@ -21,6 +21,7 @@
 #include "afficheur.hpp"
 #include "sdcard.hpp"
 #include "interpreteur.hpp"
+#include "log.hpp"
 
 //-----------------------------------
 //
@@ -28,7 +29,7 @@
 //
 //-----------------------------------
 void task_init(void){
-    //sprintf(printString, "task_init => debut\n"); Serial.print(printString);
+    //log("task_init => debut\n");
     int i=0;
     for (i = 0 ; i < NB_TASKS ; i++){
         task_reset(i);
@@ -41,26 +42,26 @@ void task_init(void){
 //
 //-----------------------------------
 void task_help(void){
-    sprintf(printString, "task_help => debut\n"); Serial.print(printString);
-    sprintf(printString, "liste des commandes : \n"); Serial.print(printString);
-    sprintf(printString, "- monitor\n"); Serial.print(printString);
-    sprintf(printString, "- ps\n"); Serial.print(printString);
-    sprintf(printString, "- env\n"); Serial.print(printString);
-    sprintf(printString, "- set\n"); Serial.print(printString);
-    sprintf(printString, "- kill\n"); Serial.print(printString);
-    sprintf(printString, "- nop\n"); Serial.print(printString);
-    sprintf(printString, "- priority\n"); Serial.print(printString);
-    sprintf(printString, "- afficheur\n"); Serial.print(printString);
-    sprintf(printString, "- sdcard\n"); Serial.print(printString);
-    sprintf(printString, "      - ls\n"); Serial.print(printString);
-    sprintf(printString, "      - cd ; change de repertoire\n"); Serial.print(printString);
-    sprintf(printString, "      - pwd : repertoire courant\n"); Serial.print(printString);
-    sprintf(printString, "      - cat : affiche contenu d'un fichier texte\n"); Serial.print(printString);
-    sprintf(printString, "- interpreteur : execute un script ligne a ligne\n"); Serial.print(printString);
-    sprintf(printString, "      - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n"); Serial.print(printString);
-    sprintf(printString, "      - echo\"chaine\" : affiche chaine\n"); Serial.print(printString);
-    sprintf(printString, "      - vars : affiche la liste des variables d'une tache\n"); Serial.print(printString);
-    sprintf(printString, "- help\n"); Serial.print(printString);
+    log("task_help => debut\n"); 
+    log("liste des commandes : \n");
+    log("- monitor\n"); 
+    log("- ps\n");
+    log("- env\n");
+    log("- set\n");
+    log("- kill\n");
+    log("- nop\n");
+    log("- priority\n");
+    log("- afficheur\n");
+    log("- sdcard\n"); 
+    log("      - ls\n");
+    log("      - cd ; change de repertoire\n");
+    log("      - pwd : repertoire courant\n"); 
+    log("      - cat : affiche contenu d'un fichier texte\n"); 
+    log("- interpreteur : execute un script ligne a ligne\n"); 
+    log("      - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n");
+    log("      - echo\"chaine\" : affiche chaine\n");
+    log("      - vars : affiche la liste des variables d'une tache\n"); 
+    log("- help\n");
     
 }
 
@@ -75,82 +76,82 @@ int task_add(char *name, int priority, int parentPid){
     void (*initFct)(taskStructPtr);
     void (*waitFct)(taskStructPtr);
     void (*wakeupFct)(taskStructPtr);
-    //sprintf(printString, "task_add => debut\n"); Serial.print(printString);
-    //sprintf(printString, "task_add => tentative ajout tache %s \n", name); Serial.print(printString);
+    //log("task_add => debut\n"); 
+    //log("task_add => tentative ajout tache %s \n", name);
     if (strcmp(name, "") == 0){
         return true;
     } else if (strncmp(name, "monitor", 7) == 0){
-        //sprintf(printString, "task_add => monitor\n"); Serial.print(printString);
+        //log("task_add => monitor\n"); 
         tacheNameOK = true;
         execFct=monitor_exec;
         initFct=monitor_init;
         waitFct=monitor_wait;
         wakeupFct=monitor_wakeup;
     } else if (strncmp(name, "ps", 2) == 0){
-        //sprintf(printString, "task_add => ps\n"); Serial.print(printString);
+        //log("task_add => ps\n"); 
         tacheNameOK = true;
         execFct=ps_exec;
         initFct=ps_init;
         waitFct=ps_wait;
         wakeupFct=ps_wakeup;
     } else if (strncmp(name, "env", 3) == 0){
-        //sprintf(printString, "task_add => env\n"); Serial.print(printString);
+        //log("task_add => env\n"); 
         tacheNameOK = true;
         execFct=env_exec;
         initFct=env_init;
         waitFct=env_wait;
         wakeupFct=env_wakeup;
     } else if (strncmp(name, "set", 3) == 0){
-        //sprintf(printString, "task_add => set\n"); Serial.print(printString);
+        //log("task_add => set\n");
         tacheNameOK = true;
         execFct=set_exec;
         initFct=set_init;
         waitFct=set_wait;
         wakeupFct=set_wakeup;
     } else if (strncmp(name, "kill", 4) == 0){
-        //sprintf(printString, "task_add => kill\n"); Serial.print(printString);
+        //log("task_add => kill\n");
         tacheNameOK = true;
         execFct=kill_exec;
         initFct=kill_init;
         waitFct=kill_wait;
         wakeupFct=kill_wakeup;
     } else if (strncmp(name, "nop", 3) == 0){
-        //sprintf(printString, "task_add => nop\n"); Serial.print(printString);
+        //log("task_add => nop\n"); 
         tacheNameOK = true;
         execFct=nop_exec;
         initFct=nop_init;
         waitFct=nop_wait;
         wakeupFct=nop_wakeup;
     } else if (strncmp(name, "priority", 8) == 0){
-        //sprintf(printString, "task_add => priority\n"); Serial.print(printString);
+        //log("task_add => priority\n"); 
         tacheNameOK = true;
         execFct=priority_exec;
         initFct=priority_init;
         waitFct=priority_wait;
         wakeupFct=priority_wakeup;
     } else if (strncmp(name, "afficheur", 8) == 0){
-        //sprintf(printString, "task_add => afficheur\n"); Serial.print(printString);
+        //log("task_add => afficheur\n");
         tacheNameOK = true;
         execFct=afficheur_exec;
         initFct=afficheur_init;
         waitFct=afficheur_wait;
         wakeupFct=afficheur_wakeup;
     } else if (strncmp(name, "sdcard", 6) == 0){
-        //sprintf(printString, "task_add => sdcard\n"); Serial.print(printString);
+        //log("task_add => sdcard\n");
         tacheNameOK = true;
         execFct=sdcard_exec;
         initFct=sdcard_init;
         waitFct=sdcard_wait;
         wakeupFct=sdcard_wakeup;
     } else if (strncmp(name, "interpreteur", 12) == 0){
-        //sprintf(printString, "task_add => interpreteur\n"); Serial.print(printString);
+        //log("task_add => interpreteur\n");
         tacheNameOK = true;
         execFct=interpreteur_exec;
         initFct=interpreteur_init;
         waitFct=interpreteur_wait;
         wakeupFct=interpreteur_wakeup;
     } else if (strncmp(name, "help", 4) == 0){
-        //sprintf(printString, "task_add => help\n"); Serial.print(printString);
+        //log("task_add => help\n");
         tacheNameOK = true;
         task_help();
         return 0;
@@ -185,15 +186,15 @@ int task_add(char *name, int priority, int parentPid){
                 task->execFct=execFct;
                 task->waitFct=waitFct;
                 task->wakeupFct=wakeupFct;
-                //sprintf(printString, "task_add => tache %s ajouteee en pos %d\n", task->name, i); Serial.print(printString);
-                //sprintf(printString, "task_add => idx parent = %d\n", parentIdx); Serial.print(printString);
-                //sprintf(printString, "task_add => ppid       = %d\n", task->ppid); Serial.print(printString);
-                //sprintf(printString, "task_add => status = %d\n", task->status); Serial.print(printString);
+                //log("task_add => tache %s ajouteee en pos %d\n", task->name, i);
+                //log("task_add => idx parent = %d\n", parentIdx);
+                //log("task_add => ppid       = %d\n", task->ppid);
+                //log("task_add => status = %d\n", task->status);
                 return task->pid;
             }
         }
     } 
-    sprintf(printString, "task_add => fin\n"); Serial.print(printString);
+    log("task_add => fin\n");
     return -1;
 }
 

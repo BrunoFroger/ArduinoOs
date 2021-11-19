@@ -13,6 +13,7 @@
 #include "variables.hpp"
 #include "task.hpp"
 #include "scheduler.hpp"
+#include "log.hpp"
 
 
 void setup(){
@@ -42,9 +43,9 @@ void setup(){
         task_add("nop", 55, -1);
         task_add("nop", 63, -1);
         task_add("nop", 62, -1);
-        //sprintf(printString,"ps %d",nb_iterations);
+        //log("ps %d",nb_iterations);
         //task_add(printString, standardPriority, -1);
-        sprintf(printString,"env %d",nb_iterations);
+        log("env %d",nb_iterations);
         //task_add(printString, standardPriority, -1);
     }
     scheduler_init();
