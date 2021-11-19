@@ -7,7 +7,6 @@ Liste des actions a mener :
     - parentheses :
         - tester la priorite des operations
         - mettre a jour le README
-        - mettre fonction d'aide dans un fichier specifique
         - mettre a jour l'aide
 
 - nouvelles fonctionnalites :
@@ -20,6 +19,7 @@ Liste des actions a mener :
         - gerer le cd .. 
 
 - fonctionnalite terminées a tester :
+    - mettre fonction d'aide dans un fichier specifique
     - parentheses :
         - tester plusieurs cas d'imbrication de parentheses 
     - fonction de log avec nombre de parametres multiples

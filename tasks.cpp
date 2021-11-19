@@ -21,6 +21,7 @@
 #include "afficheur.hpp"
 #include "sdcard.hpp"
 #include "interpreteur.hpp"
+#include "help.hpp"
 #include "log.hpp"
 
 //-----------------------------------
@@ -34,35 +35,6 @@ void task_init(void){
     for (i = 0 ; i < NB_TASKS ; i++){
         task_reset(i);
     }
-}
-
-//-----------------------------------
-//
-//      task_help
-//
-//-----------------------------------
-void task_help(void){
-    log("task_help => debut\n"); 
-    log("liste des commandes : \n");
-    log("- monitor\n"); 
-    log("- ps\n");
-    log("- env\n");
-    log("- set\n");
-    log("- kill\n");
-    log("- nop\n");
-    log("- priority\n");
-    log("- afficheur\n");
-    log("- sdcard\n"); 
-    log("      - ls\n");
-    log("      - cd ; change de repertoire\n");
-    log("      - pwd : repertoire courant\n"); 
-    log("      - cat : affiche contenu d'un fichier texte\n"); 
-    log("- interpreteur : execute un script ligne a ligne\n"); 
-    log("      - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n");
-    log("      - echo\"chaine\" : affiche chaine\n");
-    log("      - vars : affiche la liste des variables d'une tache\n"); 
-    log("- help\n");
-    
 }
 
 //-----------------------------------
@@ -153,7 +125,7 @@ int task_add(char *name, int priority, int parentPid){
     } else if (strncmp(name, "help", 4) == 0){
         //log("task_add => help\n");
         tacheNameOK = true;
-        task_help();
+        help();
         return 0;
     } else {
         if (is_sdcard_initialized()){
