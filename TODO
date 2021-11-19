@@ -6,6 +6,9 @@ Liste des actions a mener :
 - travaux en cours :
     - parentheses :
         - tester la priorite des operations
+        - mettre a jour le README
+        - mettre fonction d'aide dans un fichier specifique
+        - mettre a jour l'aide
 
 - nouvelles fonctionnalites :
     - cde d'edition de fichier en ligne de commande
