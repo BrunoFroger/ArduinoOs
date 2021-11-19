@@ -5,7 +5,18 @@ Liste des actions a mener :
 
 - travaux en cours :
     - parentheses :
-        - tester plusieurs cas d'imbrication de parentheses 
-    - fonction de log avec nombre de parametres multiples
+        - tester la priorite des operations
 
 - nouvelles fonctionnalites :
+    - cde d'edition de fichier en ligne de commande
+    - gestion de fichiers :
+        - copie / deplacement de fichier
+        - creation de fichier / repertoire
+        - suppression de fichier / repertoire
+        - prise en compte de l'* pour la gestion des fichier
+        - gerer le cd .. 
+
+- fonctionnalite terminées a tester :
+    - parentheses :
+        - tester plusieurs cas d'imbrication de parentheses 
+    - fonction de log avec nombre de parametres multiples
