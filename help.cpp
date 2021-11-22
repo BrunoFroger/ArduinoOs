@@ -35,7 +35,7 @@ void help(void){
     log("      - cd dir ; change de repertoire vers dir\n");
     log("      - pwd : repertoire courant\n"); 
     log("      - cat fic : affiche contenu d'un fichier texte fic\n"); 
-    log("      - cp fic1 fic2 : affiche contenu d'un fichier texte\n"); 
+    log("      - cp fic1 fic2 : copie contenu de fic1 dans fic2\n"); 
     log("      - rm fichier :efface le fichier\n"); 
     log("- interpreteur : execute un script ligne a ligne\n"); 
     log("      - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n");

@@ -177,45 +177,66 @@ void catFile(taskStruct *task, char * filename) {
 //
 //-----------------------------------
 void copyFile(taskStruct *task, char *parametres) {
-    char *tmp1;
-    char tmp2[100];
+    char pathFic1[100];
+    char pathFic2[100];
     char carlu;
     char fichierOrigine[50];
     char fichierDestination[50];
 
-    strcpy(tmp2,parametres);
-    strcpy(fichierOrigine, tools_string_cut(tmp2,' ', 0));
-    strcpy(tmp2, task->sdCardParam.currentPathName);
-    //log("copyFile => tentative copie du fichier <%s> du repertoire <%s>\n", fichierOrigine, tmp2);
-    strcat(tmp2, fichierOrigine);
-    strcpy(fichierOrigine,tmp2);
-    //log("copyFile => tentative copie du fichier <%s> \n", tmp2);
-    File ficOrigine = SD.open(tmp2, FILE_READ);
-
-    strcpy(tmp2,parametres);
-    strcpy(fichierDestination, tools_string_cut(tmp2,' ', 1));
-    strcpy(tmp2, task->sdCardParam.currentPathName);
-    strcat(tmp2, fichierDestination);
-    strcpy(fichierDestination,tmp2);
-    //log("copyFile => verification si <%s> existe deja\n", fichierDestination);
-    File ficDestination = SD.open(fichierDestination, FILE_WRITE);
-
-    if (!ficOrigine){
-        log("impossible d'ouvrir le fichier %s\n", fichierOrigine);
+    strcpy(pathFic1,parametres);
+    strcpy(fichierOrigine, tools_string_cut(pathFic1,' ', 0));
+    strcpy(pathFic1, task->sdCardParam.currentPathName);
+    strcat(pathFic1, fichierOrigine);
+    //strcpy(fichierOrigine,tmp2);
+    log("copyFile => tentative copie du fichier <%s> \n", pathFic1);
+    if (!SD.exists(pathFic1)){
+        // le fichier d'origine n'existe pas
+        log("le fichier %s n'existe pas\n", pathFic1);
+        log("le fichier %s n'existe pas\n", fichierOrigine);
         return;
+    } 
+    File ficOrigine = SD.open(pathFic1, FILE_READ);
+    File ficDest;
+    strcpy(pathFic2,parametres);
+    strcpy(fichierDestination, tools_string_cut(pathFic2,' ', 1));
+    strcpy(pathFic2, task->sdCardParam.currentPathName);
+    strcat(pathFic2, fichierDestination);
+    //strcpy(fichierDestination,pathFic2);
+    log("copyFile => verification si <%s> existe deja\n", pathFic2);
+    if (SD.exists(pathFic2)){
+        // le fichier destination existe deja ou porte le nom d'un repertoire
+        ficDest = SD.open(pathFic2, FILE_WRITE);
+        if (ficDest.isDirectory()){
+            ficDest.close();
+            // c'est un repertoire on essaie de copier dans le repertoire avec le nom du fichier d'origine
+            strcat(pathFic2,fichierOrigine);
+            if (SD.exists(pathFic2)){
+                // le fichier existe deja dans le nouveau repertoire => KO
+                log("le fichier %s existe deja\n", pathFic2);
+                log("le fichier %s existe deja\n", fichierDestination);
+                return;
+            }
+        } else {
+            // le fichier existe deja dans le repertoire courant => KO
+            log("le fichier %s existe deja\n", pathFic2);
+            log("le fichier %s existe deja\n", fichierDestination);
+            return;
+        }
+        ficDest.close();
+    } else {        
+        // on ouvre le fichier destination
+        ficDest = SD.open(pathFic2, FILE_WRITE);
+        // on effectue la copie
+        log("copyFile => on copie <%s> vers <%s>\n", pathFic1, pathFic2);
+        while (ficOrigine.available()){
+            carlu = ficOrigine.read();
+            ficDest.write(carlu);
+            //Serial.print(carlu);
+        }
+        ficDest.close();
+        //Serial.println();
     }
-
-    //log("copyFile => copie du fichier <%s> vers le fichier <%s>\n", fichierOrigine, fichierDestination);
-
-    while (ficOrigine.available()){
-        carlu = ficOrigine.read();
-        ficDestination.write(carlu);
-        //Serial.print(carlu);
-    }
-    //Serial.println();
-
     ficOrigine.close();
-    ficDestination.close();
 }
 
 //-----------------------------------
@@ -234,18 +255,16 @@ void eraseFile(taskStruct *task, char *parametres) {
     strcpy(tmp2, task->sdCardParam.currentPathName);
     //log("copyFile => tentative copie du fichier <%s> du repertoire <%s>\n", fichierOrigine, tmp2);
     strcat(tmp2, fichierOrigine);
-    strcpy(fichierOrigine,tmp2);
+    //strcpy(fichierOrigine,tmp2);
     //log("copyFile => tentative copie du fichier <%s> \n", tmp2);
-    File ficOrigine = SD.open(tmp2, FILE_READ);
-
-    if (!ficOrigine){
+    if (SD.exists(tmp2)){
+        if (!SD.remove(tmp2)){
+            log("impossible d'effacer le fichier %s\n", fichierOrigine);
+        }
+    } else {
         log("le fichier %s n'existe pas\n", fichierOrigine);
-        return;
     }
-    ficOrigine.close();
-
-    SD.remove(fichierOrigine);
-
+ 
 }
 
 //-----------------------------------
