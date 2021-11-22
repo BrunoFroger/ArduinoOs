@@ -137,6 +137,7 @@ void printDirectory(taskStruct *task, char *directoryName, char * parametres, in
         entry.close();
     }
 }
+
 //-----------------------------------
 //
 //      catFile
@@ -172,6 +173,83 @@ void catFile(taskStruct *task, char * filename) {
 
 //-----------------------------------
 //
+//      copyFile
+//
+//-----------------------------------
+void copyFile(taskStruct *task, char *parametres) {
+    char *tmp1;
+    char tmp2[100];
+    char carlu;
+    char fichierOrigine[50];
+    char fichierDestination[50];
+
+    strcpy(tmp2,parametres);
+    strcpy(fichierOrigine, tools_string_cut(tmp2,' ', 0));
+    strcpy(tmp2, task->sdCardParam.currentPathName);
+    //log("copyFile => tentative copie du fichier <%s> du repertoire <%s>\n", fichierOrigine, tmp2);
+    strcat(tmp2, fichierOrigine);
+    strcpy(fichierOrigine,tmp2);
+    //log("copyFile => tentative copie du fichier <%s> \n", tmp2);
+    File ficOrigine = SD.open(tmp2, FILE_READ);
+
+    strcpy(tmp2,parametres);
+    strcpy(fichierDestination, tools_string_cut(tmp2,' ', 1));
+    strcpy(tmp2, task->sdCardParam.currentPathName);
+    strcat(tmp2, fichierDestination);
+    strcpy(fichierDestination,tmp2);
+    //log("copyFile => verification si <%s> existe deja\n", fichierDestination);
+    File ficDestination = SD.open(fichierDestination, FILE_WRITE);
+
+    if (!ficOrigine){
+        log("impossible d'ouvrir le fichier %s\n", fichierOrigine);
+        return;
+    }
+
+    //log("copyFile => copie du fichier <%s> vers le fichier <%s>\n", fichierOrigine, fichierDestination);
+
+    while (ficOrigine.available()){
+        carlu = ficOrigine.read();
+        ficDestination.write(carlu);
+        //Serial.print(carlu);
+    }
+    //Serial.println();
+
+    ficOrigine.close();
+    ficDestination.close();
+}
+
+//-----------------------------------
+//
+//      eraseFile
+//
+//-----------------------------------
+void eraseFile(taskStruct *task, char *parametres) {
+    char *tmp1;
+    char tmp2[100];
+    char carlu;
+    char fichierOrigine[50];
+
+    strcpy(tmp2,parametres);
+    strcpy(fichierOrigine, tools_string_cut(tmp2,' ', 0));
+    strcpy(tmp2, task->sdCardParam.currentPathName);
+    //log("copyFile => tentative copie du fichier <%s> du repertoire <%s>\n", fichierOrigine, tmp2);
+    strcat(tmp2, fichierOrigine);
+    strcpy(fichierOrigine,tmp2);
+    //log("copyFile => tentative copie du fichier <%s> \n", tmp2);
+    File ficOrigine = SD.open(tmp2, FILE_READ);
+
+    if (!ficOrigine){
+        log("le fichier %s n'existe pas\n", fichierOrigine);
+        return;
+    }
+    ficOrigine.close();
+
+    SD.remove(fichierOrigine);
+
+}
+
+//-----------------------------------
+//
 //      getPwd
 //
 //-----------------------------------
@@ -195,6 +273,7 @@ void extractFileName(char *path){
         tmp1 = strchr(path, '/');
     }
 }
+
 //-----------------------------------
 //
 //      sdcard_exec
@@ -238,13 +317,19 @@ int sdcard_exec(taskStruct *task){
             }
             task->status=DEAD;
         } else if(strncmp(parametres, "pwd", 3) == 0){
-            char tmp1[100];
             //log("sdcard_exec => pwd = <%s> \n", getPwd(task));
             task->status=DEAD;
         } else if(strncmp(parametres, "cat", 3) == 0){
-            char tmp1[100];
             parametres = &parametres[4];
             catFile(task, parametres);
+            task->status=DEAD;
+        } else if(strncmp(parametres, "cp", 2) == 0){
+            parametres = &parametres[3];
+            copyFile(task, parametres);
+            task->status=DEAD;
+        } else if(strncmp(parametres, "rm", 2) == 0){
+            parametres = &parametres[3];
+            eraseFile(task, parametres);
             task->status=DEAD;
         } else {
             // test si un script existe avec ce nom
