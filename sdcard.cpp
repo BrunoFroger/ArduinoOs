@@ -207,9 +207,12 @@ void copyFile(taskStruct *task, char *parametres) {
         // le fichier destination existe deja ou porte le nom d'un repertoire
         ficDest = SD.open(pathFic2, FILE_WRITE);
         if (ficDest.isDirectory()){
+            log("copyFile => <%s> est un repertoire\n", pathFic2);
             ficDest.close();
             // c'est un repertoire on essaie de copier dans le repertoire avec le nom du fichier d'origine
+            strcat(pathFic2,"/");
             strcat(pathFic2,fichierOrigine);
+            log("copyFile => verification si <%s> existe deja\n", pathFic2);
             if (SD.exists(pathFic2)){
                 // le fichier existe deja dans le nouveau repertoire => KO
                 log("le fichier %s existe deja\n", pathFic2);
@@ -223,19 +226,19 @@ void copyFile(taskStruct *task, char *parametres) {
             return;
         }
         ficDest.close();
-    } else {        
-        // on ouvre le fichier destination
-        ficDest = SD.open(pathFic2, FILE_WRITE);
-        // on effectue la copie
-        log("copyFile => on copie <%s> vers <%s>\n", pathFic1, pathFic2);
-        while (ficOrigine.available()){
-            carlu = ficOrigine.read();
-            ficDest.write(carlu);
-            //Serial.print(carlu);
-        }
-        ficDest.close();
-        //Serial.println();
+    }  
+    // on ouvre le fichier destination
+    ficDest = SD.open(pathFic2, FILE_WRITE);
+    // on effectue la copie
+    log("copyFile => on copie <%s> vers <%s>\n", pathFic1, pathFic2);
+    while (ficOrigine.available()){
+        carlu = ficOrigine.read();
+        ficDest.write(carlu);
+        //Serial.print(carlu);
     }
+    ficDest.close();
+    //Serial.println();
+    
     ficOrigine.close();
 }
 
@@ -264,7 +267,57 @@ void eraseFile(taskStruct *task, char *parametres) {
     } else {
         log("le fichier %s n'existe pas\n", fichierOrigine);
     }
- 
+}
+
+//-----------------------------------
+//
+//      moveFile
+//
+//-----------------------------------
+void moveFile(taskStruct *task, char *parametres) {
+    char *tmp1;
+    char tmp2[100];
+    char carlu;
+    char nomOrigine[50];
+    char nomDestination[50];
+
+    strcpy(tmp2,parametres);
+    strcpy(nomOrigine, tools_string_cut(tmp2,' ', 0));
+    strcpy(tmp2,parametres);
+    strcpy(nomDestination, tools_string_cut(tmp2,' ', 1));
+    log("moveFile => tentative deplacement fichier <%s> vers le fichier <%s>\n", nomOrigine, nomDestination);
+    // TODO
+    
+    log("moveFile => dev en cours\n");
+}
+
+//-----------------------------------
+//
+//      createDir
+//
+//-----------------------------------
+void createDir(taskStruct *task, char *parametres) {
+    char *tmp1;
+    char tmp2[100];
+    char carlu;
+    char nomRepertoire[50];
+
+    strcpy(tmp2,parametres);
+    strcpy(nomRepertoire, tools_string_cut(tmp2,' ', 0));
+    log("createDir => tentative creation du repertoire <%s>\n", nomRepertoire);
+    strcpy(tmp2, task->sdCardParam.currentPathName);
+    strcat(tmp2,"/");
+    strcat(tmp2, nomRepertoire);
+    log("createDir => tentative creation du repertoire <%s>\n", tmp2);
+    if (SD.exists(tmp2)){
+        log("ERREUR => ce nom existe deja <%s>\n", nomRepertoire);
+    } else {
+        log("createDir => on cree le repertroire\n");
+        SD.mkdir(tmp2);
+    }
+
+    // TODO
+    log("createDir => dev en cours\n");
 }
 
 //-----------------------------------
@@ -315,7 +368,7 @@ int sdcard_exec(taskStruct *task){
             }
             task->status=DEAD;
         } else if (strncmp(parametres, "cd", 2) == 0){
-            Serial.println("commande cd");
+            //Serial.println("commande cd");
             if (strlen (parametres) > 3){
                 char tmp1[100];
                 parametres = &parametres[3];
@@ -337,6 +390,7 @@ int sdcard_exec(taskStruct *task){
             task->status=DEAD;
         } else if(strncmp(parametres, "pwd", 3) == 0){
             //log("sdcard_exec => pwd = <%s> \n", getPwd(task));
+            log("%s\n", getPwd(task));
             task->status=DEAD;
         } else if(strncmp(parametres, "cat", 3) == 0){
             parametres = &parametres[4];
@@ -349,6 +403,14 @@ int sdcard_exec(taskStruct *task){
         } else if(strncmp(parametres, "rm", 2) == 0){
             parametres = &parametres[3];
             eraseFile(task, parametres);
+            task->status=DEAD;
+        } else if(strncmp(parametres, "mv", 2) == 0){
+            parametres = &parametres[3];
+            moveFile(task, parametres);
+            task->status=DEAD;
+        } else if(strncmp(parametres, "mkdir", 5) == 0){
+            parametres = &parametres[6];
+            createDir(task, parametres);
             task->status=DEAD;
         } else {
             // test si un script existe avec ce nom

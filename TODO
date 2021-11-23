@@ -3,23 +3,31 @@ Liste des actions a mener :
 - bug a corriger :
     - pb sur le break d'un for qui ne s'execute pas s'il n'y a pas dinstruction Serial.print() a l'interieur
 
-- travaux en cours :
-    - parentheses :
-        - tester la priorite des operations
-        - mettre a jour le README
-        - mettre a jour l'aide
-
-- nouvelles fonctionnalites :
+- nouvelles fonctionnalites a creer :
     - cde d'edition de fichier en ligne de commande
     - gestion de fichiers :
-        - copie / deplacement de fichier
-        - creation de fichier / repertoire
-        - suppression de fichier / repertoire
         - prise en compte de l'* pour la gestion des fichier
         - gerer le cd .. 
 
-- fonctionnalite terminées a tester :
-    - mettre fonction d'aide dans un fichier specifique
+- travaux en cours :
+    - gestion de fichiers :
+        - deplacement de fichier
     - parentheses :
+        - mettre a jour le README
+        - mettre a jour l'aide
+
+- fonctionnalite terminées a tester :
+    - parentheses :
+        - tester la priorite des operations
         - tester plusieurs cas d'imbrication de parentheses 
     - fonction de log avec nombre de parametres multiples
+    - gestion de fichiers :
+        - suppression de fichier
+        - creation de repertoire
+        - copie de fichier
+
+- fonctionnalites terminees :
+    - mettre fonction d'aide dans un fichier specifique
+
+- bug corriges :
+    - pwd ne fonctionne pas
