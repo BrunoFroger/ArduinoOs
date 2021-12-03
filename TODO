@@ -5,9 +5,17 @@ Liste des actions a mener :
 
 - nouvelles fonctionnalites a creer :
     - cde d'edition de fichier en ligne de commande
+    - cde export pour stocker une variable de script dans les variables globales
     - gestion de fichiers :
         - prise en compte de l'* pour la gestion des fichier
-        - gerer le cd .. 
+        - commande ls :
+            - gerer parametres :
+                - recurssivite -r
+                - afffichage simple ou complet -a
+        - commande cd :
+            - gerer le cd .. 
+            - gerer parametres :
+                - recurssivite -r
 
 - travaux en cours :
     - gestion de fichiers :

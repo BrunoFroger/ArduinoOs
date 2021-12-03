@@ -33,9 +33,13 @@ void setup(){
     Serial.println(" ms");
 
     task_init();
+    //log("task_init => ok\n");
     // run the monitor
+    //log("lancement des taches de base : sdcard et monitor\n");
     task_add("sdcard", 50, -1);
+    //log("sdcard => ok\n");
     task_add("monitor", 50, -1);
+    //log("monitor => ok\n");
     //task_add("afficheur", 50, -1);
     // run tasks for testing
     if (false){
@@ -48,7 +52,9 @@ void setup(){
         log("env %d",nb_iterations);
         //task_add(printString, standardPriority, -1);
     }
+    log("lancement du scheduler\n");
     scheduler_init();
+    log("scheduler_init => ok\n");
 }
 
 //-----------------------------------

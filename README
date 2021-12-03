@@ -11,3 +11,12 @@ Ce module logiciel permet d'apprehender les concepts d'os avec un de veloppement
     - kill : permet de tuer un process avec son pid
     - nop : tache ne faisant rien sauf occuper le cpu ; permet tester la gestion des priorites et le scheduler
     - priority : change le niveau priorite pour le lancement de nouvelles taches
+
+
+
+
+    Configuration IDE :
+
+    avec carte feather ESP32 HUZZAH32 + ecran featherWing 480*320
+        - type de carte : ESP32 Arduino / Adafruit ESP32 Feather
+        - configuration sdcard : SD_CS 14

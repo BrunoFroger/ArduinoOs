@@ -30,11 +30,12 @@
 //
 //-----------------------------------
 void task_init(void){
-    //log("task_init => debut\n");
+    log("task_init => debut\n");
     int i=0;
     for (i = 0 ; i < NB_TASKS ; i++){
         task_reset(i);
     }
+    log("task_init => fin\n");
 }
 
 //-----------------------------------
