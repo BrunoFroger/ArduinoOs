@@ -15,6 +15,24 @@
 #ifndef __VARIABLES_HPP
     #define __VARIABLES_HPP
 
+    #if defined(__AVR__)
+        #define SD_CS    10
+        #define BOARD   "AVR"
+    #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+        #define SD_CS     53
+        #define BOARD   "ATMega"
+    #elif defined(ESP8266)
+        #define SD_CS    D8
+        #define BOARD   "ESP8266"
+    #elif defined(ESP32)
+    //#define SD_CS    5   //SS
+    #   define SD_CS    14
+        #define BOARD   "ESP32"
+    #else
+        #define BOARD   "inconnu"
+    #endif 
+
+
     #include "task.hpp"
 
     // define tacsk variables

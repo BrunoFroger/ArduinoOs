@@ -6,8 +6,10 @@ Liste des actions a mener :
 - nouvelles fonctionnalites a creer :
     - cde d'edition de fichier en ligne de commande
     - cde export pour stocker une variable de script dans les variables globales
+    - acces aux variables globales depuis un script ; recherche du nom de varaible dans les variables globales si on la trouve pas dans les variables locales
     - gestion de fichiers :
-        - prise en compte de l'* pour la gestion des fichier
+        - prise en compte de * pour la gestion des fichiers
+        - prise en compte du ? pour la gestion des fichiers
         - commande ls :
             - gerer parametres :
                 - recurssivite -r

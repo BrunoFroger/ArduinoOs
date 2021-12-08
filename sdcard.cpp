@@ -8,19 +8,31 @@
 //
 //----------------------------------
 
-#include <arduino.h>
-#include "variables.hpp"
-#include "task.hpp"
+#include <Arduino.h>
+#include <Wire.h>
 #include <FS.h>
 #include <SPI.h>
 #include <SD.h>
+
+#include "variables.hpp"
+#include "task.hpp"
 #include "sdcard.hpp"
 #include "tools.hpp"
 #include "interpreteur.hpp"
 #include "log.hpp"
 
 
-#define SD_CS    14
+#if defined(__AVR__)
+  #define SD_CS    10
+#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  #define SD_CS     53
+#elif defined(ESP8266)
+  #define SD_CS    D8
+#elif ESP32
+  //#define SD_CS    5   //SS
+  #define SD_CS    14
+#endif 
+//#define SD_CS    14
 
 bool sdcard_initialzed=false;
 

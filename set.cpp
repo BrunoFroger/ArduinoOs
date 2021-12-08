@@ -41,7 +41,7 @@ int set_exec(taskStruct *task){
     strcpy(tmp1, task->name);
     tools_string_cut(tmp1,' ', 2);
     strcpy(value, tmp1);
-    //log("set_exec => key = <%s>, value = <%s>\n", key, value);
+    log("set_exec => key = <%s>, value = <%s>\n", key, value);
     for (int i = 0 ; i < NB_ENV_VARS ; i++){
         if (strcmp(envTbl[i].key,"") == 0){
             strcpy(envTbl[i].key,key);

@@ -10,6 +10,7 @@
 
 
 #include <arduino.h>
+
 #include "variables.hpp"
 #include "task.hpp"
 #include "scheduler.hpp"
@@ -31,6 +32,8 @@ void setup(){
     Serial.print("Serial initialized in ");
     Serial.print(1000 - timeoutInitSerial);
     Serial.println(" ms");
+    Serial.print("type de carte : ");
+    Serial.println(BOARD);
 
     task_init();
     //log("task_init => ok\n");

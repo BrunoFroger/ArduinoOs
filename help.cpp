@@ -39,8 +39,8 @@ void help(void){
     log("      - cp fic1 fic2 : copie contenu de fic1 dans fic2\n"); 
     log("      - rm fichier : efface le fichier\n"); 
     log("- interpreteur : execute un script ligne a ligne\n"); 
-    log("      liste des instructions disponibles dans un script (terminées par un ';'): \n ")
-    log("            - var = valeur; : affectartion d'une variable locale a la tache")
+    log("      liste des instructions disponibles dans un script (terminées par un ';'): \n ");
+    log("            - var = valeur; : affectartion d'une variable locale a la tache");
     log("            - if [expression] [instructions] / else [instructions] / fi : instruction de test conditionnel\n");
     log("            - echo [\"chaine\" | $var] : affiche une chaine ou le contenue d'une variable\n");
     log("            - vars : affiche la liste des variables d'une tache\n"); 

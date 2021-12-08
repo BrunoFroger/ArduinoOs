@@ -18,5 +18,8 @@ Ce module logiciel permet d'apprehender les concepts d'os avec un de veloppement
     Configuration IDE :
 
     avec carte feather ESP32 HUZZAH32 + ecran featherWing 480*320
-        - type de carte : ESP32 Arduino / Adafruit ESP32 Feather
+        - type de carte : ESP32 Arduino / Adafruit ESP32 Feather => televersement OK
         - configuration sdcard : SD_CS 14
+
+    avec carte WEMOS D1 Mini (ESP8266)
+        - ESP32 Arduino / WEMOS D1 mini ESP32 => compilation OK => televersement KO (pb de port busy)

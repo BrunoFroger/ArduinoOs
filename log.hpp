@@ -13,6 +13,6 @@
     #define __LOG_HPP
 
     extern int nbTabs;
-    void log(char *format, ...);
+    void log(const char *format, ...);
 
 #endif

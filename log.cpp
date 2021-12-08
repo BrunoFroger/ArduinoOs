@@ -22,7 +22,7 @@ int nbTabs=0;
 //      log
 //
 //-----------------------------------
-void log(char *format, ...){
+void log(const char *format, ...){
 
     strcpy(logTabs,"");
     for (int i = 0 ; i < nbTabs ; i++) {
